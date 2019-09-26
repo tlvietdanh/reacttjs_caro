@@ -1,0 +1,186 @@
+.App {
+  text-align: center;
+  height: 100vh;
+  background: url("./thumb-1920-1039919.jpg") no-repeat;
+  background-size: cover;
+  display: flex;
+  align-items: center;
+  position: relative;
+  font-size: 150%;
+  min-width: 1700px;
+  font-family: cursive;
+}
+
+.img {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  background: black;
+  opacity: 0.5;
+  z-index: 0;
+}
+
+.index {
+ color: white;
+ width: 40px;
+ margin-right: 10.5px;
+}
+
+.index-char {
+ color: white;
+ margin-right: 10px;
+ height: 40px;
+ margin-top: 1px;
+}
+
+.first {
+ margin-top: 40px;
+}
+
+.App .mContainer {
+  min-width: 1350px;
+}
+
+.Squares {
+  min-width: 880px;
+  min-height: 820px;
+}
+.myboard {
+  margin: auto;
+}
+
+.Square {
+  background: white;
+  width: 40px;
+  height: 40px;
+  margin: 0.5px;
+}
+
+.Square:disabled {
+  background-color: white;
+  opacity: 1;
+}
+
+.Winner {
+  display: block;
+}
+
+.PlayerX {
+  color: red !important;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+.PlayerO {
+  color: blue !important;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.img-x {
+  max-height: 220px;
+}
+
+.time {
+  width: 100%;
+  font-size: 50px;
+}
+
+.info {
+  width: 100%;
+  height: 100%;
+  min-height: 610px;
+}
+
+.mMar {
+  margin-left: 70px;
+}
+
+.name {
+  text-transform: uppercase;
+  background: linear-gradient(to right, #e42223 0%, #af1060 100%);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.mText {
+  background: linear-gradient(to right, #30cfd0 0%, #330867 100%);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.undo {
+  width: 50px;
+  height: 50px;
+}
+
+.redSquare {
+  background: greenyellow;
+  width: 40px;
+  height: 40px;
+  margin: 0.5px;
+}
+.redSquare:disabled {
+  background-color: greenyellow;
+  opacity: 1;
+}
+
+.mList {
+  min-width: 300px;
+  max-height: 200px;
+  overflow-y: scroll;
+}
+
+.custom {
+  border: none;
+  position: relative;
+  display: block;
+}
+
+.char {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  margin-top: 5px;
+  margin-left:38px;
+}
+
+.number {
+  margin-left: 30px;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  margin-left:60px;
+  display: inline;
+
+}
+
+.SetMargin {
+  margin-left: 40px;
+  margin-top: 42px;
+  min-width: 900px;
+  min-height: 900px;
+}
+
+.iconAsc {
+  font-size: 30px;
+}
+
+.sIndex {
+  margin-left: 15px;
+  max-width: 30px;
+  color: white;
+  display: inline;
+
+}
+
+.bIndex {
+  margin-left: 5px;
+  max-width: 30px;
+  color: white;
+  display: inline;
+}
+
+.turnRed {
+  color: red;
+}
