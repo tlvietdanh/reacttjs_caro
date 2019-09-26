@@ -29,14 +29,16 @@ interface MyState {
 
 class App extends React.Component<MyProps, MyState> {
     private MAX_COL = 20;
+
     private MAX_ROW = 20;
+
     constructor(props: MyProps) {
         super(props);
         this.state = {
             mWinner: '',
-            squares: new Array<MySquare>(),
+            squares: [],
             whichPlayer: true,
-            lastStep: new Array<MySquare>(),
+            lastStep: [],
             timeLimit: 0,
             undoMove: true,
             modalContext: '',
@@ -44,7 +46,7 @@ class App extends React.Component<MyProps, MyState> {
             isRunningTime: true,
             resetTime: false,
             disable: false,
-            steps: new Array<History>(),
+            steps: [],
             isPlayerClick: false,
             checkIndex: -1,
             stepOrder: true, // true: dec, false: asc
@@ -52,14 +54,13 @@ class App extends React.Component<MyProps, MyState> {
             charIndex: ''
         };
         const { squares } = this.state;
-        for (let i = 0; i < this.MAX_COL * this.MAX_ROW; i++) {
+        for (let i = 0; i < this.MAX_COL * this.MAX_ROW; i += 1) {
             squares.push({ index: i, value: '', isRed: false });
         }
 
         this.handleClick = this.handleClick.bind(this);
         this.handlePlayAgains = this.handlePlayAgains.bind(this);
         this.handleChangesetting = this.handleChangesetting.bind(this);
-        this.handleUndoMove = this.handleUndoMove.bind(this);
         this.handleTimeOut = this.handleTimeOut.bind(this);
         this.handleResetTime = this.handleResetTime.bind(this);
         this.handleCloseModal = this.handleCloseModal.bind(this);
@@ -83,7 +84,7 @@ class App extends React.Component<MyProps, MyState> {
             object2 = [...nSteps[checkIndex].squares];
             nSteps = nSteps.slice(0, checkIndex + 1);
         }
-        object2.push({ index: index, value: value, isRed: false });
+        object2.push({ index, value, isRed: false });
         nSteps.push({ index: nSteps.length, name: this.handleGetStepName(index), squares: object2 });
 
         if (object2.length >= this.MAX_COL * this.MAX_ROW) {
@@ -93,7 +94,7 @@ class App extends React.Component<MyProps, MyState> {
                 modalContext: 'The game is ended in a draw'
             });
         }
-        //check winner
+        // check winner
         this.handleCheckWinnerChickenDinner(object2.slice(0), value);
         nSteps.sort((a: History, b: History) => {
             return stepOrder ? a.index - b.index : b.index - a.index;
@@ -109,15 +110,17 @@ class App extends React.Component<MyProps, MyState> {
     }
 
     handleGetStepName(index: number): string {
+        const { whichPlayer } = this.state;
+
         const row = Math.floor(index / this.MAX_COL);
         const col = index - this.MAX_COL * row;
         const char = String.fromCharCode(65 + row);
-        return `${this.state.whichPlayer ? 'PlayerX' : 'PlayerO'} moving at [${char}-${col + 1}]`;
+        return `${whichPlayer ? 'PlayerX' : 'PlayerO'} moving at [${char}-${col + 1}]`;
     }
 
     handleCheckWinnerChickenDinner(mSquares: MySquare[], value: string): void {
         const { squares } = this.state;
-        mSquares.sort(function(a, b) {
+        mSquares.sort(function mSort(a, b) {
             return b.index - a.index;
         });
         const visited: number[] = [];
@@ -125,16 +128,16 @@ class App extends React.Component<MyProps, MyState> {
         const sqa = mSquares.slice(0).filter(e => e.value === value);
 
         while (sqa.length > 0) {
-            const temp = Object.assign({}, sqa.pop());
-            if (temp.value === value && visited.filter(e => e === temp.index).length === 0) {
+            const temp = sqa.pop();
+            if (temp !== undefined && temp.value === value && visited.filter(e => e === temp.index).length === 0) {
                 visited.push(temp.index);
                 let count = 1;
                 directions.forEach(dir => {
                     if (this.handleCheckIsValidCell(temp.index, dir)) {
                         count = 1;
-                        for (let i = 0; i < 5; i++) {
+                        for (let i = 0; i < 5; i += 1) {
                             if (sqa.filter(e => e.index === temp.index + dir * (i + 1)).length > 0) {
-                                count++;
+                                count += 1;
                             } else {
                                 break;
                             }
@@ -144,8 +147,8 @@ class App extends React.Component<MyProps, MyState> {
                                 mSquares.filter(e => e.index === temp.index - dir && e.value !== value).length === 0 ||
                                 mSquares.filter(e => e.index === temp.index + dir * count && e.value !== value).length === 0
                             ) {
-                                //highline the cells which are winner.
-                                for (let i = 0; i < 5; i++) {
+                                // highline the cells which are winner.
+                                for (let i = 0; i < 5; i += 1) {
                                     squares[temp.index + dir * i].isRed = true;
                                 }
                                 this.setState({
@@ -176,6 +179,8 @@ class App extends React.Component<MyProps, MyState> {
             case this.MAX_COL - 1:
                 if (currentCol - 5 < 0) return false;
                 break;
+            default:
+                break;
         }
         return true;
     }
@@ -183,7 +188,7 @@ class App extends React.Component<MyProps, MyState> {
     handlePlayAgains(): void {
         const { squares } = this.state;
         const object = [...squares];
-        for (let i = 0; i < this.MAX_COL * this.MAX_ROW; i++) {
+        for (let i = 0; i < this.MAX_COL * this.MAX_ROW; i += 1) {
             object[i].value = '';
             object[i].isRed = false;
         }
@@ -208,19 +213,6 @@ class App extends React.Component<MyProps, MyState> {
         this.setState({ timeLimit, undoMove });
     }
 
-    handleUndoMove(): void {
-        const { squares, lastStep } = this.state;
-        const object = Object.assign([], { ...lastStep });
-        object.pop();
-        const arrObject = Object.assign({}, { ...squares });
-        arrObject[lastStep[lastStep.length - 1].index].value = '';
-        this.setState({
-            squares: arrObject,
-            lastStep: object,
-            whichPlayer: !this.state.whichPlayer
-        });
-    }
-
     handleTimeOut(): void {
         this.setState({
             modalContext: 'Time out! The game is ended in a draw',
@@ -239,7 +231,7 @@ class App extends React.Component<MyProps, MyState> {
 
     handleListStepClick(index: number, checkIndex: number): void {
         const { steps, squares } = this.state;
-        let whichPlayer;
+        let whichPlayer = true;
         const object = [...steps];
         object.sort((a: History, b: History) => {
             return a.index - b.index;
@@ -248,13 +240,14 @@ class App extends React.Component<MyProps, MyState> {
         const newSquares = squares.slice(0);
         newSquares.forEach(el => {
             const temp = thisStep.filter(ne => ne.index === el.index);
+            const tempElement = el;
             if (temp.length === 0) {
-                el.value = '';
+                tempElement.value = '';
             } else {
-                el.value = temp[0].value;
+                tempElement.value = temp[0].value;
             }
         });
-        thisStep[thisStep.length - 1].value === 'X' ? (whichPlayer = false) : (whichPlayer = true);
+        if (thisStep[thisStep.length - 1].value === 'X') whichPlayer = false;
         this.setState({ squares: newSquares, checkIndex, whichPlayer });
     }
 
@@ -279,17 +272,34 @@ class App extends React.Component<MyProps, MyState> {
     }
 
     handleMouseLeaveSquare(): void {
-        console.log('hihi');
         this.setState({ numberIndex: -1, charIndex: '' });
     }
 
     render(): JSX.Element {
-        const { squares, mWinner, showModal } = this.state;
+        const {
+            squares,
+            mWinner,
+            showModal,
+            whichPlayer,
+            disable,
+            timeLimit,
+            undoMove,
+            charIndex,
+            numberIndex,
+            lastStep,
+            isRunningTime,
+            resetTime,
+            stepOrder,
+            steps,
+            checkIndex,
+            isPlayerClick,
+            modalContext
+        } = this.state;
         const mSquares = [];
 
-        for (let i = 0; i < this.MAX_COL; i++) {
+        for (let i = 0; i < this.MAX_COL; i += 1) {
             const row = [];
-            for (let j = 0; j < this.MAX_ROW; j++) {
+            for (let j = 0; j < this.MAX_ROW; j += 1) {
                 const temp = (
                     <Square
                         key={squares[i * this.MAX_COL + j].index}
@@ -297,11 +307,11 @@ class App extends React.Component<MyProps, MyState> {
                         value={squares[i * this.MAX_COL + j].value}
                         index={squares[i * this.MAX_COL + j].index}
                         isRed={squares[i * this.MAX_COL + j].isRed}
-                        whichPlayer={this.state.whichPlayer}
-                        disable={this.state.disable}
+                        whichPlayer={whichPlayer}
+                        disable={disable}
                         handleMouseOver={this.handleMouseOver}
                         handleMouseLeaveSquare={this.handleMouseLeaveSquare}
-                    ></Square>
+                    />
                 );
                 row.push(temp);
             }
@@ -314,18 +324,18 @@ class App extends React.Component<MyProps, MyState> {
         }
 
         const indexChar = [];
-        for (let i = 0; i < this.MAX_ROW; i++) {
+        for (let i = 0; i < this.MAX_ROW; i += 1) {
             const char = String.fromCharCode('A'.charCodeAt(0) + i);
             indexChar.push(
                 <div className="row" key={i}>
-                    <span className={`index-char ${i === 0 ? 'first' : ''} ${this.state.charIndex === char ? 'turnRed' : ''}`}>{char}</span>
+                    <span className={`index-char ${i === 0 ? 'first' : ''} ${charIndex === char ? 'turnRed' : ''}`}>{char}</span>
                 </div>
             );
         }
         const number = [];
-        for (let i = 0; i < this.MAX_ROW; i++) {
+        for (let i = 0; i < this.MAX_ROW; i += 1) {
             number.push(
-                <div className={`"d-inline text-center index " ${i + 1 > 10 ? 'bIndex' : 'sIndex'} ${this.state.numberIndex === i ? 'turnRed' : ''}`}>
+                <div key={i} className={`"d-inline text-center index " ${i + 1 > 10 ? 'bIndex' : 'sIndex'} ${numberIndex === i ? 'turnRed' : ''}`}>
                     {i + 1}
                 </div>
             );
@@ -333,7 +343,7 @@ class App extends React.Component<MyProps, MyState> {
 
         return (
             <div className="App disable">
-                <img className="img" alt=""></img>
+                <img className="img" alt="" />
                 <div className="container mContainer">
                     <div className="row">
                         <div className="col-8 Squares custom">
@@ -343,35 +353,34 @@ class App extends React.Component<MyProps, MyState> {
                         </div>
                         <div className="col-4">
                             <Information
-                                whichPlayer={this.state.whichPlayer}
-                                lastStep={this.state.lastStep}
-                                timeLimit={this.state.timeLimit}
-                                undoMove={this.state.undoMove}
+                                whichPlayer={whichPlayer}
+                                lastStep={lastStep}
+                                timeLimit={timeLimit}
+                                undoMove={undoMove}
                                 handleChangeSetting={this.handleChangesetting}
-                                handleUndoMove={this.handleUndoMove}
-                                isRunningTime={this.state.isRunningTime}
-                                resetTime={this.state.resetTime}
+                                isRunningTime={isRunningTime}
+                                resetTime={resetTime}
                                 handleTimeOut={this.handleTimeOut}
                                 handleResetTime={this.handleResetTime}
                                 handleRestart={this.handlePlayAgains}
-                                disable={this.state.disable}
-                                steps={this.state.steps}
+                                disable={disable}
+                                steps={steps}
                                 handleListStepClick={this.handleListStepClick}
-                                checkIndex={this.state.checkIndex}
-                                isPlayerClick={this.state.isPlayerClick}
+                                checkIndex={checkIndex}
+                                isPlayerClick={isPlayerClick}
                                 handleChangeAfterPlayerClick={this.handleChangeAfterPlayerClick}
                                 handleChangeHistoryOrder={this.handleChangeHistoryOrder}
-                                stepOrder={this.state.stepOrder}
-                            ></Information>
+                                stepOrder={stepOrder}
+                            />
                         </div>
                     </div>
                     <Modal
-                        context={this.state.modalContext}
+                        context={modalContext}
                         mWinner={mWinner}
                         handlePlayAgains={this.handlePlayAgains}
                         showModal={showModal}
                         handleCloseModal={this.handleCloseModal}
-                    ></Modal>
+                    />
                 </div>
             </div>
         );

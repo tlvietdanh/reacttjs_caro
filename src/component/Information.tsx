@@ -12,7 +12,6 @@ interface MyProps {
     timeLimit: number;
     undoMove: boolean;
     handleChangeSetting: Function;
-    handleUndoMove: Function;
     isRunningTime: boolean;
     resetTime: boolean;
     handleTimeOut: Function;
@@ -38,6 +37,7 @@ interface MyState {
 
 class Information extends React.Component<MyProps, MyState> {
     private interval: number;
+
     constructor(props: MyProps) {
         super(props);
 
@@ -52,7 +52,6 @@ class Information extends React.Component<MyProps, MyState> {
 
         this.handleTabChange = this.handleTabChange.bind(this);
         this.handleChangeSetting = this.handleChangeSetting.bind(this);
-        this.handleUndoMove = this.handleUndoMove.bind(this);
         this.handleStartTime = this.handleStartTime.bind(this);
         this.countDown = this.countDown.bind(this);
         this.handleResetTime = this.handleResetTime.bind(this);
@@ -68,58 +67,61 @@ class Information extends React.Component<MyProps, MyState> {
     }
 
     componentDidUpdate(): void {
-        if (!this.props.isRunningTime) this.handleStopTime();
-        if (this.props.resetTime) this.handleResetTime();
-        if (this.props.isPlayerClick) this.handleScrollToBottom();
+        const { isRunningTime, resetTime, isPlayerClick } = this.props;
+        if (!isRunningTime) this.handleStopTime();
+        if (resetTime) this.handleResetTime();
+        if (isPlayerClick) this.handleScrollToBottom();
     }
 
     handleTimeOut(): void {
-        this.props.handleTimeOut();
+        const { handleTimeOut } = this.props;
+        handleTimeOut();
     }
 
     countDown(): void {
+        const { timeLimit } = this.props;
+        const { isclear } = this.state;
         let { seconds, minutes, hours } = this.state;
-        if (this.props.timeLimit !== 0) {
-            if (hours * 60 + minutes + seconds / 60 >= this.props.timeLimit) {
-                if (!this.state.isclear) clearInterval(this.interval);
+        if (timeLimit !== 0) {
+            if (hours * 60 + minutes + seconds / 60 >= timeLimit) {
+                if (!isclear) clearInterval(this.interval);
                 this.handleTimeOut();
                 return;
             }
         }
         if (minutes === 59) {
-            hours++;
+            hours += 1;
             minutes = 0;
         } else if (seconds === 59) {
-            minutes++;
+            minutes += 1;
             seconds = 0;
         } else {
-            seconds++;
+            seconds += 1;
         }
         this.setState({ seconds, minutes, hours });
     }
 
     handleTabChange(): void {
-        this.setState({ isInfo: !this.state.isInfo });
+        const { isInfo } = this.state;
+        this.setState({ isInfo: !isInfo });
     }
 
     handleChangeSetting(timeLimit: number, undoMove: boolean): void {
-        this.props.handleChangeSetting(timeLimit, undoMove);
-    }
-
-    handleUndoMove(): void {
-        this.props.handleUndoMove();
+        const { handleChangeSetting } = this.props;
+        handleChangeSetting(timeLimit, undoMove);
     }
 
     handleResetTime(): void {
+        const { handleResetTime } = this.props;
         clearInterval(this.interval);
-        this.interval = setInterval(this.countDown, 1000);
+        this.interval = window.setInterval(this.countDown, 1000);
         this.setState({ seconds: 0, minutes: 0, hours: 0 }, () => {
-            this.props.handleResetTime();
+            handleResetTime();
         });
     }
 
     handleStartTime(): void {
-        this.interval = setInterval(this.countDown, 1000);
+        this.interval = window.setInterval(this.countDown, 1000);
     }
 
     handleStopTime(): void {
@@ -127,24 +129,29 @@ class Information extends React.Component<MyProps, MyState> {
     }
 
     handleChangeStep(e: FormEvent<HTMLButtonElement>): void {
+        const { handleListStepClick } = this.props;
         e.currentTarget.scrollTop = e.currentTarget.scrollHeight;
-        this.props.handleListStepClick(e.currentTarget.value, parseInt(e.currentTarget.value));
+        handleListStepClick(e.currentTarget.value, parseInt(e.currentTarget.value, 10));
     }
 
     handleScrollToBottom(): void {
+        const { stepOrder, handleChangeAfterPlayerClick } = this.props;
         const scroll = document.getElementById('listStep');
         if (scroll !== null) {
-            this.props.stepOrder ? (scroll.scrollTop = scroll.scrollHeight) : (scroll.scrollTop = 0);
+            if (stepOrder) scroll.scrollTop = scroll.scrollHeight;
+            else scroll.scrollTop = 0;
         }
-        this.props.handleChangeAfterPlayerClick();
+        handleChangeAfterPlayerClick();
     }
 
     handleChangeHistoryOrder(): void {
-        this.props.handleChangeHistoryOrder();
+        const { handleChangeHistoryOrder } = this.props;
+        handleChangeHistoryOrder();
     }
 
     render(): JSX.Element {
         const { seconds, minutes, hours, isInfo } = this.state;
+        const { steps, undoMove, checkIndex, disable, whichPlayer, stepOrder, timeLimit, handleRestart } = this.props;
 
         const mSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`;
         const mMinutes = minutes < 10 ? `0${minutes}` : `${minutes}`;
@@ -152,12 +159,13 @@ class Information extends React.Component<MyProps, MyState> {
 
         const listStep = (
             <div className="list-group mList" id="listStep">
-                {this.props.steps.map((el: History) => {
+                {steps.map((el: History) => {
                     return (
                         <button
-                            disabled={!this.props.undoMove || this.props.disable}
+                            type="button"
+                            disabled={!undoMove || disable}
                             key={el.index}
-                            className={`list-group-item list-group-item-action ${this.props.checkIndex === el.index ? ' active' : ''}`}
+                            className={`list-group-item list-group-item-action ${checkIndex === el.index ? ' active' : ''}`}
                             onClick={this.handleChangeStep}
                             value={el.index}
                         >
@@ -174,12 +182,12 @@ class Information extends React.Component<MyProps, MyState> {
                     <h5 className="mText"> {`Player's turn:`} </h5>
                 </div>
                 <div className="text-center">
-                    <img alt="" className="img-fluid img-x" src={this.props.whichPlayer ? XPlayer : OPlayer} />
+                    <img alt="" className="img-fluid img-x" src={whichPlayer ? XPlayer : OPlayer} />
                 </div>
                 <div className="text-left">
-                    <button className="btn btn-light mText" onClick={this.handleChangeHistoryOrder}>
+                    <button type="button" className="btn btn-light mText" onClick={this.handleChangeHistoryOrder}>
                         <h5 className="mText d-inline"> History: </h5>
-                        <img className="fa fa-life-ring fa-3x iconAsc" src={this.props.stepOrder ? DEC : ASC} alt=""></img>
+                        <img className="fa fa-life-ring fa-3x iconAsc" src={stepOrder ? DEC : ASC} alt="" />
                     </button>
                 </div>
                 <div className="text-center d-inline-block mt-1">{listStep}</div>
@@ -196,7 +204,7 @@ class Information extends React.Component<MyProps, MyState> {
                                 <h5 className="mText">Time Counter: </h5>
                             </div>
                         </div>
-                        <div className={'timeText'}>{`${mHours}:${mMinutes}:${mSeconds}`}</div>
+                        <div className="timeText">{`${mHours}:${mMinutes}:${mSeconds}`}</div>
                     </div>
                 </div>
                 <div className="row">
@@ -205,6 +213,7 @@ class Information extends React.Component<MyProps, MyState> {
                             <ul className="nav nav-tabs card-header-tabs">
                                 <li className="nav-item">
                                     <button
+                                        type="button"
                                         className={`mText nav-link ${isInfo ? ' active' : ''}`}
                                         onClick={this.handleTabChange}
                                         style={{ outline: 'none' }}
@@ -214,6 +223,7 @@ class Information extends React.Component<MyProps, MyState> {
                                 </li>
                                 <li className="nav-item">
                                     <button
+                                        type="button"
                                         className={`mText nav-link ${isInfo ? '' : ' active'}`}
                                         onClick={this.handleTabChange}
                                         style={{ outline: 'none' }}
@@ -227,11 +237,11 @@ class Information extends React.Component<MyProps, MyState> {
                             Infor
                         ) : (
                             <Setting
-                                timeLimit={this.props.timeLimit}
+                                timeLimit={timeLimit}
                                 handleChangeSetting={this.handleChangeSetting}
-                                undoMove={this.props.undoMove}
-                                handleRestart={this.props.handleRestart}
-                            ></Setting>
+                                undoMove={undoMove}
+                                handleRestart={handleRestart}
+                            />
                         )}
                     </div>
                 </div>

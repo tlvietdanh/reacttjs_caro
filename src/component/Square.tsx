@@ -11,16 +11,9 @@ interface MyProps {
     handleMouseLeaveSquare: Function;
 }
 
-interface MyState {
-    componentValue: string;
-}
-class Square extends React.Component<MyProps, MyState> {
+class Square extends React.Component<MyProps> {
     constructor(props: MyProps) {
         super(props);
-
-        this.state = {
-            componentValue: ''
-        };
 
         this.handleClick = this.handleClick.bind(this);
         this.handleMouseOverSquare = this.handleMouseOverSquare.bind(this);
@@ -28,36 +21,42 @@ class Square extends React.Component<MyProps, MyState> {
     }
 
     handleClick(): void {
-        if (this.props.value !== '') {
+        const { value, index, whichPlayer, handleClick } = this.props;
+        if (value !== '') {
             return;
         }
         this.setState({}, () => {
-            this.props.handleClick(this.props.index, this.props.whichPlayer ? 'X' : 'O');
+            handleClick(index, whichPlayer ? 'X' : 'O');
         });
     }
 
     handleMouseOverSquare(): void {
-        this.props.handleMouseOver(this.props.index);
+        const { handleMouseOver, index } = this.props;
+        handleMouseOver(index);
     }
 
     handleMouseLeaveSquare(): void {
-        this.props.handleMouseLeaveSquare();
+        const { handleMouseLeaveSquare } = this.props;
+        handleMouseLeaveSquare();
     }
 
     render(): JSX.Element {
+        const { value, isRed, disable } = this.props;
+
         return (
             <div>
                 <button
                     type="button"
-                    className={`btn btn-outline-success ${this.props.isRed ? 'redSquare' : 'Square'} ${this.props.value === 'X' ? 'PlayerX' : ''} ${
-                        this.props.value === 'O' ? 'PlayerO' : ''
+                    className={`btn btn-outline-success ${isRed ? 'redSquare' : 'Square'} ${value === 'X' ? 'PlayerX' : ''} ${
+                        value === 'O' ? 'PlayerO' : ''
                     }`}
                     onClick={this.handleClick}
-                    disabled={this.props.disable}
+                    disabled={disable}
                     onMouseOver={this.handleMouseOverSquare}
                     onMouseLeave={this.handleMouseLeaveSquare}
+                    onFocus={this.handleMouseOverSquare}
                 >
-                    {this.props.value}
+                    {value}
                 </button>
             </div>
         );

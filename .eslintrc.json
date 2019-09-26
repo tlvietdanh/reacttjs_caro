@@ -5,7 +5,8 @@
     "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended",
     "prettier/@typescript-eslint",
-    "plugin:prettier/recommended"
+    "plugin:prettier/recommended",
+    "airbnb", "prettier", "prettier/react"
   ],
   "plugins": ["react", "@typescript-eslint", "prettier"],
   "env": {
@@ -14,18 +15,48 @@
     "jest": true
   },
   "rules": {
-    "prettier/prettier": ["warn", { "singleQuote": true, "tabWidth": 4, "bracketSpacing": true, "printWidth": 150}],
+    "react/jsx-filename-extension": [
+      2,
+      {
+        "extensions": [".js", ".jsx", ".tsx"]
+      }
+    ],
+    "prettier/prettier": ["warn", {
+      "singleQuote": true,
+      "tabWidth": 4,
+      "bracketSpacing": true,
+      "printWidth": 150
+    }],
     "@typescript-eslint/no-empty-interface": 0,
-    "for-direction":2,
+    "for-direction": 2,
     "getter-return": 2,
     "no-await-in-loop": 2,
-    "comma-dangle": 2
+    "comma-dangle": 0,
+    "react/prop-types": 2,
+    "no-underscore-dangle": 2,
+    "import/imports-first": ["error", "absolute-first"],
+    "import/newline-after-import": "error",
+    "import/no-unresolved": 2
   },
   "settings": {
     "react": {
       "pragma": "React",
       "version": "detect"
-    }
+    },
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+      }
+     }
+  },
+  "globals": {
+    "window": true,
+    "document": true,
+    "localStorage": true,
+    "FormData": true,
+    "FileReader": true,
+    "Blob": true,
+    "navigator": true
   },
   "parser": "@typescript-eslint/parser"
 }

@@ -19,26 +19,29 @@ class Modal extends React.Component<MyProps> {
     }
 
     handlePlayAgains(): void {
-        this.props.handlePlayAgains();
+        const { handlePlayAgains } = this.props;
+        handlePlayAgains();
     }
 
     handleCloseModal(): void {
-        this.props.handleCloseModal();
+        const { handleCloseModal } = this.props;
+        handleCloseModal();
     }
 
     render(): JSX.Element {
+        const { mWinner, showModal, context } = this.props;
         let pic = '';
-        if (this.props.mWinner === 'X') pic = X;
-        else if (this.props.mWinner === 'O') pic = O;
+        if (mWinner === 'X') pic = X;
+        else if (mWinner === 'O') pic = O;
         return (
             <div
-                className={`modal fade ${this.props.showModal ? 'show' : ''}`}
+                className={`modal fade ${showModal ? 'show' : ''}`}
                 id="exampleModalCenter"
                 tabIndex={-1}
                 role="dialog"
                 aria-labelledby="exampleModalCenterTitle"
                 aria-hidden="true"
-                style={{ display: `${this.props.showModal ? 'block' : 'none'}` }}
+                style={{ display: `${showModal ? 'block' : 'none'}` }}
             >
                 <div className="modal-dialog modal-dialog-centered" role="document">
                     <div className="modal-content">
@@ -52,8 +55,8 @@ class Modal extends React.Component<MyProps> {
                         </div>
                         <div className="modal-body">
                             <div className="container">
-                                <div className="text-center">{this.props.context}</div>
-                                <img className="img-fluid" src={pic} alt=""></img>
+                                <div className="text-center">{context}</div>
+                                <img className="img-fluid" src={pic} alt="" />
                                 <button type="button" className="btn btn-success" data-dismiss="modal" onClick={this.handlePlayAgains}>
                                     Play Agains
                                 </button>
