@@ -177,7 +177,7 @@ class App extends React.Component<MyProps, MyState> {
                 if (currentCol > this.MAX_COL - 5) return false;
                 break;
             case this.MAX_COL - 1:
-                if (currentCol - 5 < 0) return false;
+                if (currentCol - 4 < 0) return false;
                 break;
             default:
                 break;
