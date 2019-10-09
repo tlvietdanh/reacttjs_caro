@@ -38,7 +38,8 @@
     "import/newline-after-import": "error",
     "import/no-unresolved": 2,
     "@typescript-eslint/explicit-function-return-type": 0,
-    "no-shadow": 0
+    "no-shadow": 0,
+    "camelcase": 0
   },
   "settings": {
     "react": {

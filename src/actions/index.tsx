@@ -11,7 +11,7 @@ export const handleClick = (index: number) => ({
 });
 export const handleCheckWinnerChickenDinner = () => ({
     type: type.USER_HANDLE_CHECK_WINNER_CHICKEN_DINNER,
-    payload: { }
+    payload: {}
 });
 export const handlePlayAgains = () => ({
     type: type.USER_HANDLE_PLAY_AGAINS,
@@ -65,5 +65,9 @@ export const countDown = () => ({
 });
 export const handleTapChange = () => ({
     type: type.USER_HANDLE_TAP_CHANGE,
+    payload: {}
+});
+export const handleAfterRestartTime = () => ({
+    type: type.USER_HANDLE_AFTER_RESTART_TIME,
     payload: {}
 });

@@ -35,7 +35,10 @@ export default function infoReducer(state = initialState, action: ActionType) {
             return { ...state, timeLimit, undoMove };
         }
         case type.USER_HANDLE_RESET_TIME: {
-            return { ...state, seconds: 0, minutes: 0, hours: 0, isResetTime: true };
+            return { ...state, seconds: 0, minutes: 0, hours: 0, isRestartTime: true };
+        }
+        case type.USER_HANDLE_AFTER_RESTART_TIME: {
+            return { ...state, isRestartTime: false };
         }
         default:
             return state;

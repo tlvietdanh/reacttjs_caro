@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { handleChangesetting, handlePlayAgains } from '../actions/index';
+import { handleChangesetting, handlePlayAgains, handleResetTime } from '../actions/index';
 import { ReducerType } from '../constants/globalInterface';
 
 interface SettingProps {
@@ -8,6 +8,7 @@ interface SettingProps {
     undoMove: boolean;
     handleChangesetting: Function;
     handlePlayAgains: Function;
+    handleResetTime: Function;
 }
 
 interface MyState {
@@ -46,8 +47,9 @@ class Setting extends React.Component<SettingProps, MyState> {
     }
 
     handleRestart(): void {
-        const { handlePlayAgains } = this.props;
+        const { handlePlayAgains, handleResetTime } = this.props;
         handlePlayAgains();
+        handleResetTime();
     }
 
     render(): JSX.Element {
@@ -116,7 +118,8 @@ const mapStateToProps = (state: ReducerType) => {
 
 const mapDispatchToProps = {
     handleChangesetting,
-    handlePlayAgains
+    handlePlayAgains,
+    handleResetTime
 };
 
 export default connect(

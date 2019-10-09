@@ -15,7 +15,8 @@ import {
     handleListStepClick,
     handleChangeHistoryOrder,
     handleShowModal,
-    handleChangeAfterPlayerClick
+    handleChangeAfterPlayerClick,
+    handleAfterRestartTime
 } from '../actions/index';
 
 interface MyProps {
@@ -36,18 +37,16 @@ interface MyProps {
     handleChangeHistoryOrder: Function;
     handleShowModal: Function;
     handleChangeAfterPlayerClick: Function;
+    handleAfterRestartTime: Function;
 }
 
 class Information extends React.Component<MyProps> {
     private interval: number;
 
-    private counter: number;
-
     constructor(props: MyProps) {
         super(props);
 
         this.interval = 0;
-        this.counter = 0;
         this.handleTabChange = this.handleTabChange.bind(this);
         this.handleChangeSetting = this.handleChangeSetting.bind(this);
         this.handleStartTime = this.handleStartTime.bind(this);
@@ -64,19 +63,20 @@ class Information extends React.Component<MyProps> {
     }
 
     componentDidUpdate(): void {
-        const { isRunningTime, isPlayerClick } = this.props;
+        const { isRunningTime, isPlayerClick, infoState, handleAfterRestartTime } = this.props;
         if (!isRunningTime) this.handleStopTime();
-
-        if (isRunningTime) {
-            if (this.counter % 3 === 0) this.handleStartTime();
+        if (infoState.isRestartTime) {
+            this.handleStartTime();
+            handleAfterRestartTime();
         }
         if (isPlayerClick) this.handleScrollToBottom();
     }
 
     handleTimeOut(): void {
-        clearInterval(this.interval);
-        const { handleShowModal } = this.props;
+        this.handleStopTime();
+        const { handleShowModal, handleAfterRestartTime } = this.props;
         handleShowModal(ConstVar.TIE, '');
+        handleAfterRestartTime();
     }
 
     countDown(): void {
@@ -105,12 +105,10 @@ class Information extends React.Component<MyProps> {
 
     handleStartTime(): void {
         this.interval = window.setInterval(this.countDown, 1000);
-        this.counter += 1;
     }
 
     handleStopTime(): void {
         clearInterval(this.interval);
-        this.counter += 1;
     }
 
     handleChangeStep(e: FormEvent<HTMLButtonElement>): void {
@@ -253,7 +251,8 @@ const mapDispatchToProps = {
     handleListStepClick,
     handleChangeHistoryOrder,
     handleShowModal,
-    handleChangeAfterPlayerClick
+    handleChangeAfterPlayerClick,
+    handleAfterRestartTime
 };
 
 export default connect(

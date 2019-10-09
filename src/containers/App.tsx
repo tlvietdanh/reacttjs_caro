@@ -45,7 +45,7 @@ class App extends React.Component<AppProps> {
         this.handleChangeHistoryOrder = this.handleChangeHistoryOrder.bind(this);
     }
 
-    componentWillMount(): void {
+    UNSAFE_componentWillMount(): void {
         const { handleInitialBoard } = this.props;
         handleInitialBoard();
     }
@@ -86,6 +86,7 @@ class App extends React.Component<AppProps> {
             for (let j = 0; j < ConstVar.MAX_ROW; j += 1) {
                 const temp = (
                     <Square
+                        key={i * ConstVar.MAX_COL + j}
                         index={squares[i * ConstVar.MAX_COL + j].index}
                         value={squares[i * ConstVar.MAX_COL + j].value}
                         isRed={squares[i * ConstVar.MAX_COL + j].isRed}
