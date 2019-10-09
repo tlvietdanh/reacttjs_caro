@@ -36,7 +36,9 @@
     "no-underscore-dangle": 2,
     "import/imports-first": ["error", "absolute-first"],
     "import/newline-after-import": "error",
-    "import/no-unresolved": 2
+    "import/no-unresolved": 2,
+    "@typescript-eslint/explicit-function-return-type": 0,
+    "no-shadow": 0
   },
   "settings": {
     "react": {

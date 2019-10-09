@@ -1,10 +1,13 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import { handleChangesetting, handlePlayAgains } from '../actions/index';
+import { ReducerType } from '../constants/globalInterface';
 
-interface MyProps {
+interface SettingProps {
     timeLimit: number;
     undoMove: boolean;
-    handleChangeSetting: Function;
-    handleRestart: Function;
+    handleChangesetting: Function;
+    handlePlayAgains: Function;
 }
 
 interface MyState {
@@ -12,8 +15,8 @@ interface MyState {
     undoMove: boolean;
 }
 
-class Setting extends React.Component<MyProps, MyState> {
-    constructor(props: MyProps) {
+class Setting extends React.Component<SettingProps, MyState> {
+    constructor(props: SettingProps) {
         super(props);
 
         this.state = {
@@ -37,14 +40,14 @@ class Setting extends React.Component<MyProps, MyState> {
     }
 
     handleSaveSetting(): void {
-        const { handleChangeSetting } = this.props;
+        const { handleChangesetting } = this.props;
         const { timeLimit, undoMove } = this.state;
-        handleChangeSetting(timeLimit, undoMove);
+        handleChangesetting(timeLimit, undoMove);
     }
 
     handleRestart(): void {
-        const { handleRestart } = this.props;
-        handleRestart();
+        const { handlePlayAgains } = this.props;
+        handlePlayAgains();
     }
 
     render(): JSX.Element {
@@ -103,4 +106,20 @@ class Setting extends React.Component<MyProps, MyState> {
     }
 }
 
-export default Setting;
+const mapStateToProps = (state: ReducerType) => {
+    const { timeLimit, undoMove } = state.infoReducer;
+    return {
+        timeLimit,
+        undoMove
+    };
+};
+
+const mapDispatchToProps = {
+    handleChangesetting,
+    handlePlayAgains
+};
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Setting);

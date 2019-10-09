@@ -1,60 +1,57 @@
 import React, { FormEvent } from 'react';
+import { connect } from 'react-redux';
 import OPlayer from '../assets/o.png';
 import XPlayer from '../assets/x.png';
 import ASC from '../assets/asc.png';
 import DEC from '../assets/dec.png';
 import Setting from './Setting';
-import { History, MySquare } from './Global';
+import * as ConstVar from '../constants/constVariables';
+import { History, InfoState, ReducerType } from '../constants/globalInterface';
+import {
+    countDown,
+    handleTapChange,
+    handleChangesetting,
+    handleResetTime,
+    handleListStepClick,
+    handleChangeHistoryOrder,
+    handleShowModal,
+    handleChangeAfterPlayerClick
+} from '../actions/index';
 
 interface MyProps {
-    whichPlayer: boolean;
-    lastStep: MySquare[];
-    timeLimit: number;
-    undoMove: boolean;
-    handleChangeSetting: Function;
     isRunningTime: boolean;
-    resetTime: boolean;
-    handleTimeOut: Function;
-    handleResetTime: Function;
-    handleRestart: Function;
-    disable: boolean;
-    steps: History[];
-    handleListStepClick: Function;
-    checkIndex: number;
-    isPlayerClick: boolean;
-    handleChangeAfterPlayerClick: Function;
     stepOrder: boolean;
+    isPlayerClick: boolean;
+    checkIndex: number;
+    steps: History[];
+    disable: boolean;
+    whichPlayer: boolean;
+    infoState: InfoState;
+
+    countDown: Function;
+    handleTapChange: Function;
+    handleChangesetting: Function;
+    handleResetTime: Function;
+    handleListStepClick: Function;
     handleChangeHistoryOrder: Function;
+    handleShowModal: Function;
+    handleChangeAfterPlayerClick: Function;
 }
 
-interface MyState {
-    seconds: number;
-    minutes: number;
-    hours: number;
-    isInfo: boolean;
-    isclear: boolean;
-}
-
-class Information extends React.Component<MyProps, MyState> {
+class Information extends React.Component<MyProps> {
     private interval: number;
+
+    private counter: number;
 
     constructor(props: MyProps) {
         super(props);
 
-        this.state = {
-            seconds: 0,
-            minutes: 0,
-            hours: 0,
-            isInfo: true,
-            isclear: true
-        };
         this.interval = 0;
-
+        this.counter = 0;
         this.handleTabChange = this.handleTabChange.bind(this);
         this.handleChangeSetting = this.handleChangeSetting.bind(this);
         this.handleStartTime = this.handleStartTime.bind(this);
         this.countDown = this.countDown.bind(this);
-        this.handleResetTime = this.handleResetTime.bind(this);
         this.handleStopTime = this.handleStopTime.bind(this);
         this.handleTimeOut = this.handleTimeOut.bind(this);
         this.handleChangeStep = this.handleChangeStep.bind(this);
@@ -67,21 +64,24 @@ class Information extends React.Component<MyProps, MyState> {
     }
 
     componentDidUpdate(): void {
-        const { isRunningTime, resetTime, isPlayerClick } = this.props;
+        const { isRunningTime, isPlayerClick } = this.props;
         if (!isRunningTime) this.handleStopTime();
-        if (resetTime) this.handleResetTime();
+
+        if (isRunningTime) {
+            if (this.counter % 3 === 0) this.handleStartTime();
+        }
         if (isPlayerClick) this.handleScrollToBottom();
     }
 
     handleTimeOut(): void {
-        const { handleTimeOut } = this.props;
-        handleTimeOut();
+        clearInterval(this.interval);
+        const { handleShowModal } = this.props;
+        handleShowModal(ConstVar.TIE, '');
     }
 
     countDown(): void {
-        const { timeLimit } = this.props;
-        const { isclear } = this.state;
-        let { seconds, minutes, hours } = this.state;
+        const { infoState } = this.props;
+        const { timeLimit, seconds, hours, minutes, isclear } = infoState;
         if (timeLimit !== 0) {
             if (hours * 60 + minutes + seconds / 60 >= timeLimit) {
                 if (!isclear) clearInterval(this.interval);
@@ -89,43 +89,28 @@ class Information extends React.Component<MyProps, MyState> {
                 return;
             }
         }
-        if (minutes === 59) {
-            hours += 1;
-            minutes = 0;
-        } else if (seconds === 59) {
-            minutes += 1;
-            seconds = 0;
-        } else {
-            seconds += 1;
-        }
-        this.setState({ seconds, minutes, hours });
+        const { countDown } = this.props;
+        countDown();
     }
 
     handleTabChange(): void {
-        const { isInfo } = this.state;
-        this.setState({ isInfo: !isInfo });
+        const { handleTapChange } = this.props;
+        handleTapChange();
     }
 
     handleChangeSetting(timeLimit: number, undoMove: boolean): void {
-        const { handleChangeSetting } = this.props;
-        handleChangeSetting(timeLimit, undoMove);
-    }
-
-    handleResetTime(): void {
-        const { handleResetTime } = this.props;
-        clearInterval(this.interval);
-        this.interval = window.setInterval(this.countDown, 1000);
-        this.setState({ seconds: 0, minutes: 0, hours: 0 }, () => {
-            handleResetTime();
-        });
+        const { handleChangesetting } = this.props;
+        handleChangesetting(timeLimit, undoMove);
     }
 
     handleStartTime(): void {
         this.interval = window.setInterval(this.countDown, 1000);
+        this.counter += 1;
     }
 
     handleStopTime(): void {
         clearInterval(this.interval);
+        this.counter += 1;
     }
 
     handleChangeStep(e: FormEvent<HTMLButtonElement>): void {
@@ -136,6 +121,7 @@ class Information extends React.Component<MyProps, MyState> {
 
     handleScrollToBottom(): void {
         const { stepOrder, handleChangeAfterPlayerClick } = this.props;
+
         const scroll = document.getElementById('listStep');
         if (scroll !== null) {
             if (stepOrder) scroll.scrollTop = scroll.scrollHeight;
@@ -150,8 +136,9 @@ class Information extends React.Component<MyProps, MyState> {
     }
 
     render(): JSX.Element {
-        const { seconds, minutes, hours, isInfo } = this.state;
-        const { steps, undoMove, checkIndex, disable, whichPlayer, stepOrder, timeLimit, handleRestart } = this.props;
+        const { infoState, steps, checkIndex, disable, whichPlayer, stepOrder } = this.props;
+
+        const { seconds, minutes, hours, isInfo, undoMove } = infoState;
 
         const mSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`;
         const mMinutes = minutes < 10 ? `0${minutes}` : `${minutes}`;
@@ -217,6 +204,7 @@ class Information extends React.Component<MyProps, MyState> {
                                         className={`mText nav-link ${isInfo ? ' active' : ''}`}
                                         onClick={this.handleTabChange}
                                         style={{ outline: 'none' }}
+                                        disabled={isInfo}
                                     >
                                         Information
                                     </button>
@@ -227,22 +215,14 @@ class Information extends React.Component<MyProps, MyState> {
                                         className={`mText nav-link ${isInfo ? '' : ' active'}`}
                                         onClick={this.handleTabChange}
                                         style={{ outline: 'none' }}
+                                        disabled={!isInfo}
                                     >
                                         Game Setting
                                     </button>
                                 </li>
                             </ul>
                         </div>
-                        {isInfo ? (
-                            Infor
-                        ) : (
-                            <Setting
-                                timeLimit={timeLimit}
-                                handleChangeSetting={this.handleChangeSetting}
-                                undoMove={undoMove}
-                                handleRestart={handleRestart}
-                            />
-                        )}
+                        {isInfo ? Infor : <Setting />}
                     </div>
                 </div>
             </div>
@@ -250,4 +230,33 @@ class Information extends React.Component<MyProps, MyState> {
     }
 }
 
-export default Information;
+const mapStateToProps = (state: ReducerType) => {
+    const { steps, checkIndex, disable, whichPlayer, stepOrder, isPlayerClick, isRunningTime } = state.app;
+    const infoState = state.infoReducer;
+    return {
+        isRunningTime,
+        isPlayerClick,
+        stepOrder,
+        steps,
+        checkIndex,
+        disable,
+        whichPlayer,
+        infoState
+    };
+};
+
+const mapDispatchToProps = {
+    countDown,
+    handleTapChange,
+    handleChangesetting,
+    handleResetTime,
+    handleListStepClick,
+    handleChangeHistoryOrder,
+    handleShowModal,
+    handleChangeAfterPlayerClick
+};
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Information);

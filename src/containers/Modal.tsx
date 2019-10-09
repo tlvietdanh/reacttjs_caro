@@ -1,26 +1,30 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import X from '../assets/x.png';
 import O from '../assets/o.png';
+import { ReducerType } from '../constants/globalInterface';
+import { handleCloseModal, handlePlayAgains, handleResetTime } from '../actions/index';
 
-interface MyProps {
-    context: string;
+interface ModalProps {
+    modalContext: string;
     mWinner: string;
-    handlePlayAgains: Function;
     showModal: boolean;
     handleCloseModal: Function;
+    handlePlayAgains: Function;
+    handleResetTime: Function;
 }
 
-class Modal extends React.Component<MyProps> {
-    constructor(props: MyProps) {
+class Modal extends React.Component<ModalProps> {
+    constructor(props: ModalProps) {
         super(props);
-
         this.handlePlayAgains = this.handlePlayAgains.bind(this);
         this.handleCloseModal = this.handleCloseModal.bind(this);
     }
 
     handlePlayAgains(): void {
-        const { handlePlayAgains } = this.props;
+        const { handlePlayAgains, handleResetTime } = this.props;
         handlePlayAgains();
+        handleResetTime();
     }
 
     handleCloseModal(): void {
@@ -29,7 +33,7 @@ class Modal extends React.Component<MyProps> {
     }
 
     render(): JSX.Element {
-        const { mWinner, showModal, context } = this.props;
+        const { mWinner, showModal, modalContext } = this.props;
         let pic = '';
         if (mWinner === 'X') pic = X;
         else if (mWinner === 'O') pic = O;
@@ -55,7 +59,7 @@ class Modal extends React.Component<MyProps> {
                         </div>
                         <div className="modal-body">
                             <div className="container">
-                                <div className="text-center">{context}</div>
+                                <div className="text-center">{modalContext}</div>
                                 <img className="img-fluid" src={pic} alt="" />
                                 <button type="button" className="btn btn-success" data-dismiss="modal" onClick={this.handlePlayAgains}>
                                     Play Agains
@@ -68,4 +72,23 @@ class Modal extends React.Component<MyProps> {
         );
     }
 }
-export default Modal;
+
+const mapStateToProps = (state: ReducerType) => {
+    const { modalContext, mWinner, showModal } = state.app;
+    return {
+        modalContext,
+        mWinner,
+        showModal
+    };
+};
+
+const mapDispatchToProps = {
+    handleCloseModal,
+    handlePlayAgains,
+    handleResetTime
+};
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Modal);

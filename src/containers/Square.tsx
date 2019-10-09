@@ -1,18 +1,22 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import { handleClick, handleMouseOver, handleMouseLeaveSquare, handleCheckWinnerChickenDinner } from '../actions/index';
+import { ReducerType } from '../constants/globalInterface';
 
-interface MyProps {
+export interface SquaresProps {
     handleClick: Function;
-    index: number;
-    value: string;
-    whichPlayer: boolean;
-    disable: boolean;
-    isRed: boolean;
     handleMouseOver: Function;
     handleMouseLeaveSquare: Function;
+    handleCheckWinnerChickenDinner: Function;
+
+    disable: boolean;
+    index: number;
+    value: string;
+    isRed: boolean;
 }
 
-class Square extends React.Component<MyProps> {
-    constructor(props: MyProps) {
+class Square extends React.Component<SquaresProps> {
+    constructor(props: SquaresProps) {
         super(props);
 
         this.handleClick = this.handleClick.bind(this);
@@ -21,13 +25,12 @@ class Square extends React.Component<MyProps> {
     }
 
     handleClick(): void {
-        const { value, index, whichPlayer, handleClick } = this.props;
+        const { value, index, handleClick, handleCheckWinnerChickenDinner } = this.props;
         if (value !== '') {
             return;
         }
-        this.setState({}, () => {
-            handleClick(index, whichPlayer ? 'X' : 'O');
-        });
+        handleClick(index);
+        handleCheckWinnerChickenDinner();
     }
 
     handleMouseOverSquare(): void {
@@ -63,4 +66,18 @@ class Square extends React.Component<MyProps> {
     }
 }
 
-export default Square;
+const mapStateToProps = (state: ReducerType) => {
+    const { disable } = state.app;
+    return { disable };
+};
+
+const mapDispatchToProps = {
+    handleClick,
+    handleMouseOver,
+    handleMouseLeaveSquare,
+    handleCheckWinnerChickenDinner
+};
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Square);
