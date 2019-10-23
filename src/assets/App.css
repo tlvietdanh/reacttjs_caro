@@ -184,3 +184,27 @@
 .turnRed {
   color: red;
 }
+
+.Login {
+  z-index: 1;
+  color: white;
+  width: 800px;
+}
+
+.login-input {
+  text-align: start;
+}
+
+.login-button {
+  width: 100px;
+}
+
+.home-button {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+}
+
+.login-text{
+  color: red;
+}

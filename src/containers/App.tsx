@@ -1,11 +1,14 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import '../assets/App.css';
+import { Redirect } from 'react-router';
+import { Button } from 'react-bootstrap';
 import Square from './Square';
 import Modal from './Modal';
 import Information from './Information';
 import { ReducerType, MySquare } from '../constants/globalInterface';
 import * as ConstVar from '../constants/constVariables';
+import { handleLogout, handleCheckLoginRequest } from '../actions/LoginAction';
+import '../assets/App.css';
 
 import {
     handleInitialBoard,
@@ -23,6 +26,8 @@ export interface AppProps {
     charIndex: string;
     numberIndex: number;
     squares: MySquare[];
+    isLogin: boolean;
+
     handleInitialBoard: Function;
     handleClick: Function;
     handleCheckWinnerChickenDinner: Function;
@@ -32,6 +37,8 @@ export interface AppProps {
     handleChangeAfterPlayerClick: Function;
     handleChangeHistoryOrder: Function;
     handleResetTime: Function;
+    handleLogout: Function;
+    handleCheckLoginRequest: Function;
 }
 
 class App extends React.Component<AppProps> {
@@ -43,11 +50,13 @@ class App extends React.Component<AppProps> {
         this.handleListStepClick = this.handleListStepClick.bind(this);
         this.handleChangeAfterPlayerClick = this.handleChangeAfterPlayerClick.bind(this);
         this.handleChangeHistoryOrder = this.handleChangeHistoryOrder.bind(this);
+        this.handleLogout = this.handleLogout.bind(this);
     }
 
     UNSAFE_componentWillMount(): void {
         const { handleInitialBoard } = this.props;
         handleInitialBoard();
+        handleCheckLoginRequest();
     }
 
     handlePlayAgains(): void {
@@ -76,9 +85,16 @@ class App extends React.Component<AppProps> {
         handleChangeHistoryOrder();
     }
 
-    render(): JSX.Element {
-        const { charIndex, numberIndex, squares } = this.props;
+    handleLogout(): void {
+        const { handleLogout } = this.props;
+        handleLogout();
+    }
 
+    render(): JSX.Element {
+        const { charIndex, numberIndex, squares, isLogin } = this.props;
+        if (!isLogin) {
+            return <Redirect to="/login" />;
+        }
         const mSquares = [];
 
         for (let i = 0; i < ConstVar.MAX_COL; i += 1) {
@@ -135,6 +151,9 @@ class App extends React.Component<AppProps> {
                         </div>
                     </div>
                     <Modal />
+                    <Button className="home-button" variant="outline-danger" onClick={this.handleLogout}>
+                        Logout
+                    </Button>
                 </div>
             </div>
         );
@@ -145,7 +164,8 @@ const mapStateToProps = (state: ReducerType) => {
     return {
         charIndex: state.app.charIndex,
         numberIndex: state.app.numberIndex,
-        squares: state.app.squares
+        squares: state.app.squares,
+        isLogin: state.loginReducer.isLogin
     };
 };
 
@@ -158,7 +178,9 @@ const mapDispatchToProps = {
     handleCloseModal,
     handleListStepClick,
     handleResetTime,
-    handleChangeHistoryOrder
+    handleChangeHistoryOrder,
+    handleLogout,
+    handleCheckLoginRequest
 };
 
 export default connect(

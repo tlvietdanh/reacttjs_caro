@@ -51,4 +51,24 @@ export interface InfoState {
 export interface ReducerType {
     app: AppState;
     infoReducer: InfoState;
+    loginReducer: Login;
+}
+
+export interface Login {
+    id: string;
+    username: string;
+    password: string;
+    firstname: string;
+    lastname: string;
+    isLogin: boolean;
+    token: string;
+    isLoginFalse: boolean;
+    isRegisterFalse: boolean;
+}
+
+export interface RegisterInfo {
+    username: string;
+    firstname: string;
+    lastname: string;
+    password: string;
 }
