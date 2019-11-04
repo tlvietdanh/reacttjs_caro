@@ -1,37 +1,63 @@
 import * as type from '../constants/actionType';
 import { Login, ActionType } from '../constants/globalInterface';
+import * as constants from '../constants/constVariables';
 
 const initialState: Login = {
     id: '',
     username: '',
     password: '',
-    firstname: '',
-    lastname: '',
+    fullname: '',
+    email: '',
+    avatar: '',
     isLogin: false,
     token: '',
     isLoginFalse: false,
-    isRegisterFalse: false
+    isRegisterSuccess: false,
+    loading: false,
+    checkLogin: true,
+    status: ''
 };
 
 export default function loginReducer(state = initialState, action: ActionType) {
     switch (action.type) {
+        case type.HANLDE_LOADING_LOGIN_ON: {
+            return { ...state, loading: true };
+        }
+        case type.HANLDE_LOADING_LOGIN_OFF: {
+            return { ...state, loading: false };
+        }
         case type.HANDLE_CHECK_LOGIN: {
             const user = action.payload;
+            let { checkLogin } = state;
             if (user) {
-                return { ...state, id: user.id, username: user.username, firstname: user.firstname, lastname: user.lastname, isLogin: true };
+                const { data } = user;
+                if (!checkLogin && data) {
+                    checkLogin = true;
+                    return {
+                        ...state,
+                        id: data.id,
+                        username: data.username,
+                        fullname: data.fullname,
+                        email: data.email,
+                        avatar: data.avatar,
+                        checkLogin,
+                        status: ''
+                    };
+                }
             }
-            return { ...state };
+            checkLogin = false;
+            return { ...state, checkLogin };
         }
         case type.HANDLE_CHANGE_INFO: {
-            const { username, password } = action.payload;
-            return { ...state, username, password };
+            const { username, password, fullname } = action.payload;
+            return { ...state, username, password, fullname };
         }
         case type.HANDLE_LOGIN: {
-            const { user, token } = action.payload;
-            if (user && token) {
-                const { username, password } = state;
-                let { isLogin } = state;
-                if (username === user.username && password === user.password) {
+            const data = action.payload;
+            if (data) {
+                const { user, token } = data;
+                if (user && token) {
+                    let { isLogin } = state;
                     localStorage.setItem(
                         'auth',
                         JSON.stringify({
@@ -39,12 +65,26 @@ export default function loginReducer(state = initialState, action: ActionType) {
                         })
                     );
                     isLogin = true;
-                    return { ...state, isLogin, token };
+                    return {
+                        ...state,
+                        id: user.id,
+                        username: user.username,
+                        fullname: user.fullname,
+                        email: user.email,
+                        avatar: user.avatar,
+                        loading: false,
+                        isLogin,
+                        token,
+                        checkLogin: true,
+                        status: ''
+                    };
                 }
+                return { ...state, isLogin: false, status: constants.INVALID_USERNAME };
             }
-            return { ...state, isLoginFalse: true };
+            return { ...state, isLogin: false, status: constants.CONNECT_FAIL };
         }
         case type.HANDLE_LOGOUT: {
+            localStorage.setItem('auth', '');
             return initialState;
         }
         case type.HANDLE_CHANGE_REGISTER_INFO: {
@@ -53,11 +93,35 @@ export default function loginReducer(state = initialState, action: ActionType) {
         }
         case type.HANDLE_REGISTER: {
             // check register sucess
-            const user = action.payload;
-            if (typeof user === 'string') {
-                return { ...state, isRegisterFalse: true };
+            const respond = action.payload;
+            if (respond) {
+                if (typeof respond === 'string') {
+                    return { ...state, isRegisterSuccess: true, loading: false, status: constants.SAME_USERNAME };
+                }
+                const { user, token } = respond;
+                let { isLogin } = state;
+                localStorage.setItem(
+                    'auth',
+                    JSON.stringify({
+                        token
+                    })
+                );
+                isLogin = true;
+                return {
+                    ...state,
+                    id: user.id,
+                    username: user.username,
+                    fullname: user.fullname,
+                    email: user.email,
+                    avatar: user.avatar,
+                    loading: false,
+                    isRegisterSuccess: true,
+                    isLogin,
+                    token,
+                    status: ''
+                };
             }
-            return { ...state, id: user.id, username: user.username, firstname: user.firstname, lastname: user.lastname };
+            return { ...state, status: constants.CONNECT_FAIL };
         }
         default:
             return state;

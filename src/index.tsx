@@ -7,22 +7,29 @@ import thunk from 'redux-thunk';
 import App from './containers/App';
 import * as serviceWorker from './serviceWorker';
 import myStore from './reducers/index';
-import './assets/index.css';
+import './assets/css/index.css';
 import Login from './containers/user/login';
-import Register from './containers/user/register';
+import Register from './components/user/SignUp';
+import Dashboard from './containers/DashBoard';
+import './assets/css/App.css';
+
 
 const store = createStore(myStore, applyMiddleware(thunk));
 
 ReactDOM.render(
     <Provider store={store}>
         <Router>
-            <Route path="/" exact component={App} />
+            <Route path="/" exact component={Dashboard} />
+            <Route path="/game" exact component={App} />
+
             <Route path="/login" exact component={Login} />
             <Route path="/register" exact component={Register} />
         </Router>
     </Provider>,
     document.getElementById('root')
 );
+
+// run saga:
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

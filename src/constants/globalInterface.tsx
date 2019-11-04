@@ -32,6 +32,7 @@ export interface AppState {
     isRunningTime: boolean;
     numberIndex: number;
     charIndex: string;
+    myTurn: boolean;
 }
 
 // *-------------- Modal --------------*
@@ -52,18 +53,23 @@ export interface ReducerType {
     app: AppState;
     infoReducer: InfoState;
     loginReducer: Login;
+    dashboard: DashBoard;
 }
 
 export interface Login {
     id: string;
     username: string;
     password: string;
-    firstname: string;
-    lastname: string;
+    fullname: string;
+    email: string;
+    avatar: string;
     isLogin: boolean;
     token: string;
     isLoginFalse: boolean;
-    isRegisterFalse: boolean;
+    isRegisterSuccess: boolean;
+    loading: boolean;
+    checkLogin: boolean;
+    status: string;
 }
 
 export interface RegisterInfo {
@@ -71,4 +77,9 @@ export interface RegisterInfo {
     firstname: string;
     lastname: string;
     password: string;
+}
+
+export interface DashBoard {
+    isPlayWithBots: boolean;
+    startGame: boolean;
 }

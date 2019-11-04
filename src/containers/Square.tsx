@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { handleClick, handleMouseOver, handleMouseLeaveSquare, handleCheckWinnerChickenDinner } from '../actions/index';
+import { handleClick, handleMouseOver, handleMouseLeaveSquare, handleCheckWinnerChickenDinner, handleDisableAfterPlayerClick } from '../actions/index';
 import { ReducerType } from '../constants/globalInterface';
 
 export interface SquaresProps {
@@ -8,8 +8,9 @@ export interface SquaresProps {
     handleMouseOver: Function;
     handleMouseLeaveSquare: Function;
     handleCheckWinnerChickenDinner: Function;
+    handleDisableAfterPlayerClick: Function;
 
-    disable: boolean;
+    myTurn: boolean;
     index: number;
     value: string;
     isRed: boolean;
@@ -25,12 +26,11 @@ class Square extends React.Component<SquaresProps> {
     }
 
     handleClick(): void {
-        const { value, index, handleClick, handleCheckWinnerChickenDinner } = this.props;
+        const { value, index, handleClick } = this.props;
         if (value !== '') {
             return;
         }
         handleClick(index);
-        handleCheckWinnerChickenDinner();
     }
 
     handleMouseOverSquare(): void {
@@ -44,7 +44,7 @@ class Square extends React.Component<SquaresProps> {
     }
 
     render(): JSX.Element {
-        const { value, isRed, disable } = this.props;
+        const { value, isRed, myTurn } = this.props;
 
         return (
             <div>
@@ -54,7 +54,7 @@ class Square extends React.Component<SquaresProps> {
                         value === 'O' ? 'PlayerO' : ''
                     }`}
                     onClick={this.handleClick}
-                    disabled={disable}
+                    disabled={!myTurn}
                     onMouseOver={this.handleMouseOverSquare}
                     onMouseLeave={this.handleMouseLeaveSquare}
                     onFocus={this.handleMouseOverSquare}
@@ -67,15 +67,15 @@ class Square extends React.Component<SquaresProps> {
 }
 
 const mapStateToProps = (state: ReducerType) => {
-    const { disable } = state.app;
-    return { disable };
+    const { myTurn } = state.app;
+    return { myTurn };
 };
 
 const mapDispatchToProps = {
     handleClick,
     handleMouseOver,
     handleMouseLeaveSquare,
-    handleCheckWinnerChickenDinner
+    handleCheckWinnerChickenDinner, handleDisableAfterPlayerClick
 };
 export default connect(
     mapStateToProps,

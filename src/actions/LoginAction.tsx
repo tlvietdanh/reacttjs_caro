@@ -1,16 +1,19 @@
+/* eslint-disable no-return-await */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Axios from 'axios';
 import * as type from '../constants/actionType';
 import { RegisterInfo } from '../constants/globalInterface';
 import { baseURL } from '../constants/constVariables';
+import { async } from 'q';
 
 const action = (type: string, payload: any) => ({ type, payload });
 
 export const handleLoginRequest = (username: string, password: string) => {
     const data = { username, password };
-
-    return (dispatch: any) => {
-        return Axios.post(`${baseURL}/user/login`, data).then((res: any) => {
+    return async (dispatch: any) => {
+        dispatch(action(type.HANLDE_LOADING_LOGIN_ON, null));
+        return await Axios.post(`${baseURL}/user/login`, data).then((res: any) => {
+            dispatch(action(type.HANLDE_LOADING_LOGIN_OFF, null));
             dispatch(action(type.HANDLE_LOGIN, res.data));
         });
     };
@@ -21,9 +24,9 @@ export const handleLogin = (username: string, password: string) => ({
     payload: { username, password }
 });
 
-export const handleChangeInfo = (username: string, password: string) => ({
+export const handleChangeInfo = (username: string, password: string, fullname: string) => ({
     type: type.HANDLE_CHANGE_INFO,
-    payload: { username, password }
+    payload: { username, password, fullname }
 });
 
 export const handleChangeRegisterInfo = (info: RegisterInfo) => ({
@@ -31,9 +34,13 @@ export const handleChangeRegisterInfo = (info: RegisterInfo) => ({
     payload: { info }
 });
 
-export const handleRegisterRequest = (info: RegisterInfo) => {
+export const handleRegisterRequest = (username: string, password: string, fullname: string, email: string, avatar: string) => {
+    const data = { fullname, username, password, email, avatar };
+
     return (dispatch: any) => {
-        return Axios.post(`${baseURL}/user/register`, info).then((res: any) => {
+        dispatch(action(type.HANLDE_LOADING_LOGIN_ON, null));
+        return Axios.post(`${baseURL}/user/register`, data).then((res: any) => {
+            dispatch(action(type.HANLDE_LOADING_LOGIN_OFF, null));
             dispatch(action(type.HANDLE_REGISTER, res.data));
         });
     };
@@ -47,12 +54,18 @@ export const handleLogout = () => ({
 export const handleCheckLoginRequest = () => {
     const auth = localStorage.getItem('auth');
     if (auth) {
-        const AuthStr = 'Bearer '.concat(JSON.parse(auth).token);
-        return (dispatch: any) => {
-            return Axios.get(`${baseURL}/me`, { headers: { Authorization: AuthStr } }).then(response => {
-                return dispatch(action(type.HANDLE_CHECK_LOGIN, response));
-            });
+        return async (dispatch: any) => {
+            dispatch(action(type.HANLDE_LOADING_LOGIN_ON, null));
+            return await Axios.get(`${baseURL}/me`, { headers: { Authorization: `Bearer ${JSON.parse(auth).token}` } })
+                .then(response => {
+                    return dispatch(action(type.HANDLE_CHECK_LOGIN, response));
+                })
+                .catch((err: any) => {
+                    return dispatch(action(type.HANDLE_CHECK_LOGIN, err));
+                });
         };
     }
-    return action(type.HANDLE_CHECK_LOGIN, null);
+    return (dispatch: any) => {
+        dispatch(action(type.HANDLE_CHECK_LOGIN, null));
+    };
 };

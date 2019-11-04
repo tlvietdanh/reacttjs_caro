@@ -1,14 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router';
-import { Button } from 'react-bootstrap';
 import Square from './Square';
 import Modal from './Modal';
 import Information from './Information';
 import { ReducerType, MySquare } from '../constants/globalInterface';
 import * as ConstVar from '../constants/constVariables';
 import { handleLogout, handleCheckLoginRequest } from '../actions/LoginAction';
-import '../assets/App.css';
 
 import {
     handleInitialBoard,
@@ -27,6 +25,7 @@ export interface AppProps {
     numberIndex: number;
     squares: MySquare[];
     isLogin: boolean;
+    checkLogin: boolean;
 
     handleInitialBoard: Function;
     handleClick: Function;
@@ -54,9 +53,9 @@ class App extends React.Component<AppProps> {
     }
 
     UNSAFE_componentWillMount(): void {
-        const { handleInitialBoard } = this.props;
-        handleInitialBoard();
+        const { handleInitialBoard, handleCheckLoginRequest } = this.props;
         handleCheckLoginRequest();
+        handleInitialBoard();
     }
 
     handlePlayAgains(): void {
@@ -91,8 +90,9 @@ class App extends React.Component<AppProps> {
     }
 
     render(): JSX.Element {
-        const { charIndex, numberIndex, squares, isLogin } = this.props;
-        if (!isLogin) {
+        const { charIndex, numberIndex, squares, checkLogin } = this.props;
+
+        if (!checkLogin) {
             return <Redirect to="/login" />;
         }
         const mSquares = [];
@@ -151,9 +151,6 @@ class App extends React.Component<AppProps> {
                         </div>
                     </div>
                     <Modal />
-                    <Button className="home-button" variant="outline-danger" onClick={this.handleLogout}>
-                        Logout
-                    </Button>
                 </div>
             </div>
         );
@@ -165,7 +162,8 @@ const mapStateToProps = (state: ReducerType) => {
         charIndex: state.app.charIndex,
         numberIndex: state.app.numberIndex,
         squares: state.app.squares,
-        isLogin: state.loginReducer.isLogin
+        isLogin: state.loginReducer.isLogin,
+        checkLogin: state.loginReducer.checkLogin
     };
 };
 

@@ -4,11 +4,16 @@ export const handleInitialBoard = () => ({
     type: type.USER_INITIAL_BOARD,
     payload: {}
 });
+const action = (type: string, payload: any) => ({ type, payload });
 
-export const handleClick = (index: number) => ({
-    type: type.USER_HANDLE_CLICK,
-    payload: { index }
-});
+export const handleClick = (index: number) => {
+    return (dispatch: any) => {
+        dispatch(action(type.USER_HANDLE_CLICK, { index }));
+        dispatch(action(type.USER_HANDLE_CHECK_WINNER_CHICKEN_DINNER, {}));
+        dispatch(action(type.HANDLE_DISABLE_AFTER_USER_CLICK, {}));
+    };
+};
+
 export const handleCheckWinnerChickenDinner = () => ({
     type: type.USER_HANDLE_CHECK_WINNER_CHICKEN_DINNER,
     payload: {}
@@ -71,3 +76,8 @@ export const handleAfterRestartTime = () => ({
     type: type.USER_HANDLE_AFTER_RESTART_TIME,
     payload: {}
 });
+
+export const handleDisableAfterPlayerClick = () => ({
+    type: type.HANDLE_DISABLE_AFTER_USER_CLICK,
+    payload: {}
+})

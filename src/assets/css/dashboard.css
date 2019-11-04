@@ -1,0 +1,275 @@
+.dashboard {
+    text-align: center;
+    height: 100vh;
+    background: url("../thumb-1920-1039919.jpg") no-repeat;
+    background-size: cover;
+    display: flex;
+    align-items: center;
+    position: relative;
+    font-size: 150%;
+    min-width: 1700px;
+    font-family: cursive;
+    padding: unset;
+    overflow: hidden;
+    color: black;
+}
+
+
+.context {
+    width: 1000px;
+    height: 500px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.3);
+    position: relative;       
+    padding: unset;
+    overflow: hidden;
+}
+
+
+.context .LeftNav {
+    width: 120px;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    top: 0;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: transparent;
+    z-index: 0;
+    overflow: hidden;
+    color: white;
+    padding: unset;
+}
+
+.vl {
+    border-left: 1px solid gray;
+    position: absolute;
+    right: 0;
+    top: 5%;
+    right: 0;
+    bottom: 5%;
+}
+
+.hl {
+    width: 50%;
+    border-bottom: 1px solid gray;
+    padding: unset;
+}
+
+.LeftNav > button {
+    width: 98%;
+    height: 120px;
+    z-index: 2;
+    opacity: 1;
+    margin: 25px 10px;
+    background: white;
+
+}
+
+.LeftNav button:hover {
+    background: #dddddd;
+}
+
+.selected-menu {
+    background: #dddddd !important;
+}
+
+.testNav {
+    background: white;
+    opacity: 0.8;
+    width: 120px;
+    overflow: hidden;
+}
+
+.opa {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background: rgb(231, 231, 231);
+    opacity: 0.8;
+    z-index: -1;
+}
+
+.isFind {
+    background:rgb(192, 252, 197);
+}
+
+.test {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    margin-bottom: 5px;
+}
+
+.logout {
+    align-self: flex-end;
+    width: 98%;
+    height: 100px;
+    z-index: 2;
+    opacity: 1;
+    margin: 25px 10px;
+    background: white;
+    margin: unset;
+
+}
+
+.RightNav {
+    width: 300px;
+    height: 100%;
+    position: absolute;
+    right: -200px;
+    top: 0;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: transparent;
+    z-index: 0;
+    transition: right .3s ease-in-out;
+    box-shadow: 0 15px 20px rgba(0, 0, 0, 0.3);        
+    color: black;
+}
+
+.RightNav :hover{
+    right: 0px;
+}
+
+.RightNav .rightFoot {
+    width: 100%;
+    text-align: start;
+    margin-top: 50px;
+}
+
+.open {
+    right: 0px;
+}
+
+.avatar {
+    vertical-align: middle;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+}
+
+.lineBreak {
+    background: black;
+}
+
+.icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 51%;
+    overflow: hidden;
+}
+
+.main {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    background: transparent;
+    z-index: 0;
+    overflow: hidden;
+    color: black;
+    padding: 5%;
+
+}
+
+.mSelect {
+    width: 250px;
+}
+
+.findmatch {
+    align-self: flex-end;
+}
+
+.findmatch > button {
+    width: 200px;
+    color: WHITE;
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+}
+
+.map {
+    width: 711px;
+    height: 400px;
+    background: url('../bot.jpg') no-repeat;
+    background-size: 100%;
+    box-shadow: 0 15px 20px rgba(0, 0, 0, 0.3);        
+    overflow: hidden;
+    position: relative;
+    z-index: -1;
+    padding: unset;
+    text-align: center;
+}
+
+.mode {
+    width: 200px;
+    height: 220px;
+    color: black;
+    padding: unset;
+    overflow: hidden;
+    position: relative;
+
+}
+
+.mode:hover {
+    border: 2px solid yellow;
+    box-shadow: 0 15px 20px rgba(0, 0, 0, 0.3);        
+}
+
+.clicked {
+    border: 2px solid green;
+    box-shadow: 0 15px 20px rgba(0, 0, 0, 0.3);        
+
+}
+
+.waiting {
+    position: absolute;
+    left: 20px;
+    bottom: 25px;
+    color: green;
+}
+
+#file1 {
+    font-size: 16px;
+    width: 300px;
+    height: 30px;
+}
+
+#avatar {
+    width: 100px;
+    height: 100px;
+}
+
+.avatar {
+    width: 50px ;
+    height: 50px;
+    margin-left: 20px;
+}
+
+.main .spanText {
+    width: 200px;
+}
+
+.editBtn {
+    position: absolute;
+    right:10px;
+    top: 50px;
+}
+
+.userText {
+    width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

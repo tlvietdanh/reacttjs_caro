@@ -17,7 +17,8 @@ const initialState: AppState = {
     stepOrder: true, // true: dec, false: asc
     isRunningTime: true,
     numberIndex: -1,
-    charIndex: ''
+    charIndex: '',
+    myTurn: true
 };
 
 function handleCheckIsValidCell(index: number, direction: number): boolean {
@@ -57,7 +58,7 @@ export default function app(state: AppState = initialState, action: ActionType):
         }
         case type.USER_HANDLE_CLICK: {
             const { index } = action.payload;
-            const { lastStep, whichPlayer, squares, steps, checkIndex, stepOrder } = state;
+            const { lastStep, whichPlayer, squares, steps, checkIndex, stepOrder, myTurn } = state;
             const value = whichPlayer ? 'X' : 'O';
 
             // assign value of square.
@@ -86,7 +87,10 @@ export default function app(state: AppState = initialState, action: ActionType):
             nSteps.sort((a: History, b: History) => {
                 return stepOrder ? a.index - b.index : b.index - a.index;
             });
-            return { ...state, squares: object, lastStep: object2, whichPlayer: !whichPlayer, isPlayerClick: true, checkIndex: -1, steps: nSteps };
+            return { ...state, squares: object, lastStep: object2, whichPlayer: !whichPlayer, isPlayerClick: true, checkIndex: -1, steps: nSteps, myTurn: !myTurn };
+        }
+        case type.HANDLE_DISABLE_AFTER_USER_CLICK: {
+            return { ...state, myTurn: false };
         }
         case type.USER_HANDLE_CHECK_WINNER_CHICKEN_DINNER: {
             const { lastStep, squares, whichPlayer } = state;
