@@ -2,7 +2,6 @@
 import React from 'react';
 import FacebookLogin from 'react-facebook-login';
 import GoogleLogin from 'react-google-login';
-import * as constants from '../../constants/constVariables';
 
 interface MyProps {
     username: string;
@@ -11,7 +10,7 @@ interface MyProps {
     email: string;
     loading: boolean;
     isRegisterSuccess: boolean;
-    status: number;
+    status: string;
     // isLogin: boolean;
     // isRegisterFalse: boolean;
 
@@ -152,7 +151,7 @@ class Register extends React.Component<MyProps, MyState> {
                         <span className={loading ? 'spinner-border spinner-border-sm mr-2' : 'd-none'} role="status" aria-hidden="true" />
                         Sign Up
                     </button>
-                    <div className="invalid-feedback d-block small"> {constants.SERVER_RESPOND.status}</div> 
+                    <div className={status === '' ? 'd-none' : 'invalid-feedback d-block small'}> {status}</div>
                 </form>
             </div>
         );

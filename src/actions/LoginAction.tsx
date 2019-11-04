@@ -4,7 +4,6 @@ import Axios from 'axios';
 import * as type from '../constants/actionType';
 import { RegisterInfo } from '../constants/globalInterface';
 import { baseURL } from '../constants/constVariables';
-import { async } from 'q';
 
 const action = (type: string, payload: any) => ({ type, payload });
 
@@ -24,9 +23,9 @@ export const handleLogin = (username: string, password: string) => ({
     payload: { username, password }
 });
 
-export const handleChangeInfo = (username: string, password: string, fullname: string) => ({
+export const handleChangeInfo = (username: string, password: string, fullname: string, email: string) => ({
     type: type.HANDLE_CHANGE_INFO,
-    payload: { username, password, fullname }
+    payload: { username, password, fullname, email }
 });
 
 export const handleChangeRegisterInfo = (info: RegisterInfo) => ({

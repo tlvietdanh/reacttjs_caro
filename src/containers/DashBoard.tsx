@@ -54,9 +54,9 @@ class Dashboard extends React.Component<MyProps, MyState> {
     }
 
     handleLogout() {
-        const { handleLogout, handleCheckLoginRequest } = this.props;
+        const { handleLogout, handleCheckLoginRequest, checkLogin } = this.props;
         handleLogout();
-        handleCheckLoginRequest();
+        if (!checkLogin) handleCheckLoginRequest();
     }
 
     handleHoverOn() {

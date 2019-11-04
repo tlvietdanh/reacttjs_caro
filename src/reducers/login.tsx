@@ -14,7 +14,7 @@ const initialState: Login = {
     isLoginFalse: false,
     isRegisterSuccess: false,
     loading: false,
-    checkLogin: true,
+    checkLogin: false,
     status: ''
 };
 
@@ -29,6 +29,7 @@ export default function loginReducer(state = initialState, action: ActionType) {
         case type.HANDLE_CHECK_LOGIN: {
             const user = action.payload;
             let { checkLogin } = state;
+            console.log(user)
             if (user) {
                 const { data } = user;
                 if (!checkLogin && data) {
@@ -41,16 +42,18 @@ export default function loginReducer(state = initialState, action: ActionType) {
                         email: data.email,
                         avatar: data.avatar,
                         checkLogin,
-                        status: ''
+                        status: '',
+                        loading: false
                     };
                 }
+                checkLogin = false;
+                return { ...state, checkLogin, loading: false };
             }
-            checkLogin = false;
-            return { ...state, checkLogin };
+            return { ...state, checkLogin: false, loading: false, state: constants.CONNECT_FAIL };
         }
         case type.HANDLE_CHANGE_INFO: {
-            const { username, password, fullname } = action.payload;
-            return { ...state, username, password, fullname };
+            const { username, password, fullname, email } = action.payload;
+            return { ...state, username, password, fullname, email, status: '' };
         }
         case type.HANDLE_LOGIN: {
             const data = action.payload;
@@ -79,7 +82,7 @@ export default function loginReducer(state = initialState, action: ActionType) {
                         status: ''
                     };
                 }
-                return { ...state, isLogin: false, status: constants.INVALID_USERNAME };
+                return { ...state, isLogin: false, status: constants.INVALID_USERNAME, loading: false };
             }
             return { ...state, isLogin: false, status: constants.CONNECT_FAIL };
         }

@@ -45,13 +45,15 @@ class Login extends React.Component<MyProps, MyState> {
     }
 
     handleChangeInfo(type: string, value: string) {
-        const { username, password, fullname, handleChangeInfo } = this.props;
+        const { username, password, fullname, handleChangeInfo, email } = this.props;
         if (type === 'username') {
-            handleChangeInfo(value, password, fullname);
+            handleChangeInfo(value, password, fullname, email);
         } else if (type === 'password') {
-            handleChangeInfo(username, value, fullname);
+            handleChangeInfo(username, value, fullname, email);
+        } else if (type === 'email') {
+            handleChangeInfo(username, password, fullname, value);
         } else {
-            handleChangeInfo(username, password, value);
+            handleChangeInfo(username, password, value, email);
         }
     }
 
@@ -111,6 +113,7 @@ class Login extends React.Component<MyProps, MyState> {
                         loading={loading}
                         handleChangeInfo={this.handleChangeInfo}
                         handleLogin={this.handleLogin}
+                        status={status}
                     />
 
                     <div className="overlay-container">

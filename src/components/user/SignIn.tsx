@@ -6,6 +6,7 @@ interface MyProps {
     username: string;
     password: string;
     loading: boolean;
+    status: string;
     handleLogin: Function;
     handleChangeInfo: Function;
 }
@@ -64,7 +65,7 @@ class SignIn extends React.Component<MyProps, MyState> {
     }
 
     render() {
-        const { username, password, loading } = this.props;
+        const { username, password, loading, status } = this.props;
         const { isFacebook } = this.state;
         const facebook = (
             <FacebookLogin
@@ -121,6 +122,7 @@ class SignIn extends React.Component<MyProps, MyState> {
                         <span className={loading ? 'spinner-border spinner-border-sm mr-2' : 'd-none'} role="status" aria-hidden="true" />
                         Sign In
                     </button>
+                    <div className={status === '' ? 'd-none' : 'invalid-feedback d-block small'}> {status}</div>
                 </form>
             </div>
         );
