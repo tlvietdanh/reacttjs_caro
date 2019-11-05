@@ -273,3 +273,14 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+.userText1 {
+    width: 400px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.invaText{
+    width: unset;
+    margin-left: 20px;
+}

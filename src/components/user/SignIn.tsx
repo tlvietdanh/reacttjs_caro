@@ -26,7 +26,6 @@ class SignIn extends React.Component<MyProps, MyState> {
         this.handleLogin = this.handleLogin.bind(this);
         this.handleLoginByFacebook = this.handleLoginByFacebook.bind(this);
         this.handleLoginByGoogle = this.handleLoginByGoogle.bind(this);
-
         this.handleFacebookBtnClick = this.handleFacebookBtnClick.bind(this);
     }
 

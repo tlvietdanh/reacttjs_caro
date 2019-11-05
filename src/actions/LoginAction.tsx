@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/camelcase */
 /* eslint-disable no-return-await */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Axios from 'axios';
@@ -62,6 +63,52 @@ export const handleCheckLoginRequest = () => {
                 .catch((err: any) => {
                     return dispatch(action(type.HANDLE_CHECK_LOGIN, err));
                 });
+        };
+    }
+    return (dispatch: any) => {
+        dispatch(action(type.HANDLE_CHECK_LOGIN, null));
+    };
+};
+
+export const handleModifyUserInfo = (email: string, fullname: string, avatar: string, oldPass: string, newPass: string) => {
+    let data;
+    const auth = localStorage.getItem('auth');
+    if (auth) {
+        return async (dispatch: any) => {
+            if (avatar !== '') {
+                console.log('hiha')
+
+                if (oldPass !== '' && newPass !== '') {
+                    data = { email, fullname, avatar, oldPass, newPass };
+                } else {
+                    data = { email, fullname, avatar };
+                }
+                const files = new FormData();
+                files.append('file', avatar);
+                files.append('upload_preset', 'danhdanh');
+                files.append('clound_name', 'dilzn2blz');
+                files.append('api_key', '213964643219572');
+                return Axios.post(`https://api.cloudinary.com/v1_1/dilzn2blz/image/upload`, files).then((res: any) => {
+                    const { secure_url } = res.data;
+                    data = { email, fullname, avatar: secure_url };
+                    return Axios.post(`${baseURL}/me/edit`, data, { headers: { Authorization: `Bearer ${JSON.parse(auth).token}` } }).then(
+                        (response: any) => {
+                            dispatch(action(type.HANDLE_UPDATE_USER_INFO, response));
+                        }
+                    );
+                });
+            }
+            if (oldPass !== '' && newPass !== '') {
+                data = { email, fullname, oldPass, newPass };
+            } else {
+                data = { email, fullname };
+            }
+            return await Axios.post(`${baseURL}/me/edit`, data, { headers: { Authorization: `Bearer ${JSON.parse(auth).token}` } }).then(
+                (data: any) => {
+                    console.log(data) 
+                    dispatch(action(type.HANDLE_UPDATE_USER_INFO, data));
+                }
+            );
         };
     }
     return (dispatch: any) => {

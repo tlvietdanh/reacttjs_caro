@@ -29,9 +29,9 @@ export default function loginReducer(state = initialState, action: ActionType) {
         case type.HANDLE_CHECK_LOGIN: {
             const user = action.payload;
             let { checkLogin } = state;
-            console.log(user)
             if (user) {
                 const { data } = user;
+
                 if (!checkLogin && data) {
                     checkLogin = true;
                     return {
@@ -41,9 +41,10 @@ export default function loginReducer(state = initialState, action: ActionType) {
                         fullname: data.fullname,
                         email: data.email,
                         avatar: data.avatar,
-                        checkLogin,
+                        checkLogin: true,
                         status: '',
-                        loading: false
+                        loading: false,
+                        isLogin: true
                     };
                 }
                 checkLogin = false;
@@ -121,6 +122,26 @@ export default function loginReducer(state = initialState, action: ActionType) {
                     isRegisterSuccess: true,
                     isLogin,
                     token,
+                    status: ''
+                };
+            }
+            return { ...state, status: constants.CONNECT_FAIL };
+        }
+        case type.HANDLE_UPDATE_USER_INFO: {
+            const res = action.payload;
+            if (res.data) {
+                const { data } = res;
+                if (typeof data === 'string') {
+                    return { ...state, loading: false, status: data };
+                }
+                return {
+                    ...state,
+                    id: data.id,
+                    username: data.username,
+                    fullname: data.fullname,
+                    email: data.email,
+                    avatar: data.avatar,
+                    loading: false,
                     status: ''
                 };
             }

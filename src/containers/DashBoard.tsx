@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { withRouter, Redirect } from 'react-router';
-import { handleCheckLoginRequest, handleLogout } from '../actions/LoginAction';
+import { handleCheckLoginRequest, handleLogout, handleModifyUserInfo } from '../actions/LoginAction';
 import { handleChangeSelect } from '../actions/dashboardActions';
 import { ReducerType } from '../constants/globalInterface';
 import PlayGame from '../components/dashboard/PlayGame';
@@ -20,10 +20,12 @@ interface MyProps {
     password: string;
     email: string;
     avatar: string;
+    status: string;
 
     handleCheckLoginRequest: Function;
     handleChangeSelect: Function;
     handleLogout: Function;
+    handleModifyUserInfo: Function;
     history: any;
 }
 
@@ -46,6 +48,7 @@ class Dashboard extends React.Component<MyProps, MyState> {
         this.handleHoverOff = this.handleHoverOff.bind(this);
         this.handleFindingMatch = this.handleFindingMatch.bind(this);
         this.handleChangeMenu = this.handleChangeMenu.bind(this);
+        this.handleModifyUserInfo = this.handleModifyUserInfo.bind(this);
     }
 
     UNSAFE_componentWillMount() {
@@ -54,9 +57,8 @@ class Dashboard extends React.Component<MyProps, MyState> {
     }
 
     handleLogout() {
-        const { handleLogout, handleCheckLoginRequest, checkLogin } = this.props;
+        const { handleLogout } = this.props;
         handleLogout();
-        if (!checkLogin) handleCheckLoginRequest();
     }
 
     handleHoverOn() {
@@ -112,8 +114,13 @@ class Dashboard extends React.Component<MyProps, MyState> {
         }
     }
 
+    handleModifyUserInfo(tempEmail: string, tempFullname: string, tempAvatar: string, tempOldPass: string, tempNewPass: string) {
+        const { handleModifyUserInfo } = this.props;
+        handleModifyUserInfo(tempEmail, tempFullname, tempAvatar, tempOldPass, tempNewPass);
+    }
+
     render() {
-        const { checkLogin, username, fullname, email, avatar } = this.props;
+        const { checkLogin, username, fullname, email, avatar, status } = this.props;
         const { isOpen, isFinding, menu } = this.state;
         if (!checkLogin) {
             return <Redirect to="/login" />;
@@ -148,7 +155,14 @@ class Dashboard extends React.Component<MyProps, MyState> {
                     {menu ? (
                         <PlayGame handleFindingMatch={this.handleFindingMatch} isFinding={isFinding} />
                     ) : (
-                        <UserInfo username={username} fullname={fullname} email={email} avatar={avatar} />
+                        <UserInfo
+                            username={username}
+                            fullname={fullname}
+                            email={email}
+                            avatar={avatar}
+                            handleModifyUserInfo={this.handleModifyUserInfo}
+                            status={status}
+                        />
                     )}
 
                     <div className={isOpen ? 'RightNav open' : 'RightNav'} onMouseEnter={this.handleHoverOn} onMouseLeave={this.handleHoverOff}>
@@ -156,7 +170,7 @@ class Dashboard extends React.Component<MyProps, MyState> {
                         <div className="container-fluid">
                             <div className="mt-5 row ">
                                 <img src={avatar} className="rounded avatar" alt="..." />
-                                <p className="ml-3 mt-3 userText">{username}</p>
+                                <p className="ml-3 mt-3 userText ">{username}</p>
                             </div>
                             <div className="ml-2 mt-5 text-left d-flex">
                                 <span className=""> LV: 8</span>
@@ -189,14 +203,16 @@ const mapStateToProps = (state: ReducerType) => {
         password: state.loginReducer.password,
         fullname: state.loginReducer.fullname,
         email: state.loginReducer.email,
-        avatar: state.loginReducer.avatar
+        avatar: state.loginReducer.avatar,
+        status: state.loginReducer.status
     };
 };
 
 const mapDispatchToProps = {
     handleCheckLoginRequest,
     handleChangeSelect,
-    handleLogout
+    handleLogout,
+    handleModifyUserInfo,
 };
 
 export default withRouter(
