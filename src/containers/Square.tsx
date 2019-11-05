@@ -1,6 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { handleClick, handleMouseOver, handleMouseLeaveSquare, handleCheckWinnerChickenDinner, handleDisableAfterPlayerClick } from '../actions/index';
+import {
+    handleClick,
+    handleMouseOver,
+    handleMouseLeaveSquare,
+    handleCheckWinnerChickenDinner,
+    handleDisableAfterPlayerClick
+} from '../actions/index';
 import { ReducerType } from '../constants/globalInterface';
 
 export interface SquaresProps {

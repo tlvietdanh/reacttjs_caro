@@ -53,8 +53,8 @@ class App extends React.Component<AppProps> {
     }
 
     UNSAFE_componentWillMount(): void {
-        const { handleInitialBoard, handleCheckLoginRequest } = this.props;
-        handleCheckLoginRequest();
+        const { handleInitialBoard, handleCheckLoginRequest, checkLogin } = this.props;
+        if (!checkLogin) handleCheckLoginRequest();
         handleInitialBoard();
     }
 
@@ -91,7 +91,6 @@ class App extends React.Component<AppProps> {
 
     render(): JSX.Element {
         const { charIndex, numberIndex, squares, checkLogin } = this.props;
-
         if (!checkLogin) {
             return <Redirect to="/login" />;
         }

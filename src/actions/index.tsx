@@ -11,8 +11,15 @@ export const handleClick = (index: number) => {
         dispatch(action(type.USER_HANDLE_CLICK, { index }));
         dispatch(action(type.USER_HANDLE_CHECK_WINNER_CHICKEN_DINNER, {}));
         dispatch(action(type.HANDLE_DISABLE_AFTER_USER_CLICK, {}));
+        dispatch(action(type.USER_HANDLE_BOT_MOVE, {}));
+
     };
 };
+
+export const handleBotMove = () => ({
+    type: type.USER_HANDLE_BOT_MOVE,
+    payload: {}
+});
 
 export const handleCheckWinnerChickenDinner = () => ({
     type: type.USER_HANDLE_CHECK_WINNER_CHICKEN_DINNER,
@@ -80,4 +87,14 @@ export const handleAfterRestartTime = () => ({
 export const handleDisableAfterPlayerClick = () => ({
     type: type.HANDLE_DISABLE_AFTER_USER_CLICK,
     payload: {}
-})
+});
+
+export const handleUndoMove = () => ({
+    type: type.HANDLE_UNDO_MOVE,
+    payload: {}
+});
+
+export const handleRedoMove = () => ({
+    type: type.HANDLE_REDO_MOVE,
+    payload: {}
+});

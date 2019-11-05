@@ -18,7 +18,9 @@ const initialState: AppState = {
     isRunningTime: true,
     numberIndex: -1,
     charIndex: '',
-    myTurn: true
+    myTurn: true,
+    botIndex: -1,
+    undoIndex: 0
 };
 
 function handleCheckIsValidCell(index: number, direction: number): boolean {
@@ -59,13 +61,15 @@ export default function app(state: AppState = initialState, action: ActionType):
         case type.USER_HANDLE_CLICK: {
             const { index } = action.payload;
             const { lastStep, whichPlayer, squares, steps, checkIndex, stepOrder, myTurn } = state;
+            let { undoIndex } = state;
             const value = whichPlayer ? 'X' : 'O';
 
             // assign value of square.
             const object = [...squares];
             object[index].value = value;
-            let object2 = [...lastStep];
-            let nSteps = [...steps];
+            let object2 = lastStep.slice(0, undoIndex);
+            let nSteps = steps.slice(0, undoIndex);
+
             nSteps.sort((a: History, b: History) => {
                 return a.index - b.index;
             });
@@ -74,6 +78,7 @@ export default function app(state: AppState = initialState, action: ActionType):
                 nSteps = nSteps.slice(0, checkIndex + 1);
             }
             object2.push({ index, value, isRed: false });
+            undoIndex += 1;
             nSteps.push({ index: nSteps.length, name: handleGetStepName(index, whichPlayer), squares: object2 });
 
             if (object2.length >= ConstVar.MAX_COL * ConstVar.MAX_ROW) {
@@ -87,7 +92,17 @@ export default function app(state: AppState = initialState, action: ActionType):
             nSteps.sort((a: History, b: History) => {
                 return stepOrder ? a.index - b.index : b.index - a.index;
             });
-            return { ...state, squares: object, lastStep: object2, whichPlayer: !whichPlayer, isPlayerClick: true, checkIndex: -1, steps: nSteps, myTurn: !myTurn };
+            return {
+                ...state,
+                squares: object,
+                lastStep: object2,
+                whichPlayer: !whichPlayer,
+                isPlayerClick: true,
+                checkIndex: -1,
+                steps: nSteps,
+                myTurn: !myTurn,
+                undoIndex
+            };
         }
         case type.HANDLE_DISABLE_AFTER_USER_CLICK: {
             return { ...state, myTurn: false };
@@ -142,6 +157,51 @@ export default function app(state: AppState = initialState, action: ActionType):
                 }
             }
             return { ...state };
+        }
+        case type.USER_HANDLE_BOT_MOVE: {
+            const { lastStep, whichPlayer, squares, steps, checkIndex, stepOrder } = state;
+            let { undoIndex } = state;
+
+            const value = whichPlayer ? 'X' : 'O';
+            const myArray = squares.filter(el => el.value === '');
+            const { index } = myArray[Math.floor(Math.random() * myArray.length)];
+            // assign value of square.
+            const object = [...squares];
+            object[index].value = value;
+            let object2 = lastStep.slice(0, undoIndex);
+            let nSteps = [...steps];
+            nSteps.sort((a: History, b: History) => {
+                return a.index - b.index;
+            });
+            if (checkIndex !== -1) {
+                object2 = [...nSteps[checkIndex].squares];
+                nSteps = nSteps.slice(0, checkIndex + 1);
+            }
+            object2.push({ index, value, isRed: false });
+            nSteps.push({ index: nSteps.length, name: handleGetStepName(index, whichPlayer), squares: object2 });
+            undoIndex += 1;
+            if (object2.length >= ConstVar.MAX_COL * ConstVar.MAX_ROW) {
+                return {
+                    ...state,
+                    showModal: true,
+                    modalContext: ConstVar.TIE
+                };
+            }
+            // check winner
+            nSteps.sort((a: History, b: History) => {
+                return stepOrder ? a.index - b.index : b.index - a.index;
+            });
+            return {
+                ...state,
+                squares: object,
+                lastStep: object2,
+                whichPlayer: !whichPlayer,
+                isPlayerClick: true,
+                checkIndex: -1,
+                steps: nSteps,
+                myTurn: true,
+                undoIndex
+            };
         }
         case type.USER_HANDLE_PLAY_AGAINS: {
             const { squares } = state;
@@ -201,6 +261,40 @@ export default function app(state: AppState = initialState, action: ActionType):
         }
         case type.USER_HANDLE_MOUSE_LEAVE: {
             return { ...state, numberIndex: -1, charIndex: '' };
+        }
+        case type.HANDLE_UNDO_MOVE: {
+            const { squares, lastStep, whichPlayer, myTurn } = state;
+            let { undoIndex } = state;
+            if (lastStep.length > 0 && undoIndex > 0) {
+                undoIndex -= 1;
+                const arrObject = [...squares];
+                arrObject[lastStep[undoIndex].index].value = '';
+                return {
+                    ...state,
+                    squares: arrObject,
+                    whichPlayer: !whichPlayer,
+                    myTurn: !myTurn,
+                    undoIndex
+                };
+            }
+            return { ...state };
+        }
+        case type.HANDLE_REDO_MOVE: {
+            const { squares, lastStep, whichPlayer, myTurn } = state;
+            let { undoIndex } = state;
+            if (lastStep.length > 0 && undoIndex <= lastStep.length - 1) {
+                const arrObject = [...squares];
+                arrObject[lastStep[undoIndex].index].value = lastStep[undoIndex].value;
+                undoIndex += 1;
+                return {
+                    ...state,
+                    squares: arrObject,
+                    whichPlayer: !whichPlayer,
+                    myTurn: !myTurn,
+                    undoIndex
+                };
+            }
+            return { ...state };
         }
         default:
             return { ...state };

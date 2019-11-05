@@ -13,8 +13,6 @@ import exit from '../assets/icon_exit.png';
 
 interface MyProps {
     checkLogin: boolean;
-    isPlayWithBots: boolean;
-
     fullname: string;
     username: string;
     password: string;
@@ -79,8 +77,7 @@ class Dashboard extends React.Component<MyProps, MyState> {
         }
     }
 
-    handleFindingMatch(gameMode: boolean, isPlayWithBots: boolean) {
-        const { handleChangeSelect } = this.props;
+    handleFindingMatch(gameMode: boolean) {
         const { isFinding } = this.state;
         if (isFinding) {
             this.setState({
@@ -92,11 +89,10 @@ class Dashboard extends React.Component<MyProps, MyState> {
                     isFinding: true
                 },
                 () => {
-                    if (isPlayWithBots) {
+                    if (gameMode) {
                         const { history } = this.props;
                         if (history) history.push('/game');
                     }
-                    handleChangeSelect(isPlayWithBots, gameMode);
                 }
             );
         }
@@ -198,7 +194,6 @@ class Dashboard extends React.Component<MyProps, MyState> {
 const mapStateToProps = (state: ReducerType) => {
     return {
         checkLogin: state.loginReducer.checkLogin,
-        isPlayWithBots: state.dashboard.isPlayWithBots,
         username: state.loginReducer.username,
         password: state.loginReducer.password,
         fullname: state.loginReducer.fullname,
@@ -212,7 +207,7 @@ const mapDispatchToProps = {
     handleCheckLoginRequest,
     handleChangeSelect,
     handleLogout,
-    handleModifyUserInfo,
+    handleModifyUserInfo
 };
 
 export default withRouter(

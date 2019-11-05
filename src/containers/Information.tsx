@@ -7,6 +7,9 @@ import DEC from '../assets/dec.png';
 import Setting from './Setting';
 import * as ConstVar from '../constants/constVariables';
 import { History, InfoState, ReducerType } from '../constants/globalInterface';
+import Undo from '../assets/undo-arrow.png';
+import Redo from '../assets/redo.png';
+
 import {
     countDown,
     handleTapChange,
@@ -16,7 +19,9 @@ import {
     handleChangeHistoryOrder,
     handleShowModal,
     handleChangeAfterPlayerClick,
-    handleAfterRestartTime
+    handleAfterRestartTime,
+    handleUndoMove,
+    handleRedoMove
 } from '../actions/index';
 
 interface MyProps {
@@ -38,6 +43,8 @@ interface MyProps {
     handleShowModal: Function;
     handleChangeAfterPlayerClick: Function;
     handleAfterRestartTime: Function;
+    handleUndoMove: Function;
+    handleRedoMove: Function;
 }
 
 class Information extends React.Component<MyProps> {
@@ -56,6 +63,8 @@ class Information extends React.Component<MyProps> {
         this.handleChangeStep = this.handleChangeStep.bind(this);
         this.handleScrollToBottom = this.handleScrollToBottom.bind(this);
         this.handleChangeHistoryOrder = this.handleChangeHistoryOrder.bind(this);
+        this.handleUndoMove = this.handleUndoMove.bind(this);
+        this.handleRedoMove = this.handleRedoMove.bind(this);
     }
 
     componentDidMount(): void {
@@ -66,6 +75,7 @@ class Information extends React.Component<MyProps> {
         const { isRunningTime, isPlayerClick, infoState, handleAfterRestartTime } = this.props;
         if (!isRunningTime) this.handleStopTime();
         if (infoState.isRestartTime) {
+            this.handleStopTime();
             this.handleStartTime();
             handleAfterRestartTime();
         }
@@ -133,6 +143,16 @@ class Information extends React.Component<MyProps> {
         handleChangeHistoryOrder();
     }
 
+    handleUndoMove() {
+        const { handleUndoMove } = this.props;
+        handleUndoMove();
+    }
+
+    handleRedoMove() {
+        const { handleRedoMove } = this.props;
+        handleRedoMove();
+    }
+
     render(): JSX.Element {
         const { infoState, steps, checkIndex, disable, whichPlayer, stepOrder } = this.props;
 
@@ -142,13 +162,25 @@ class Information extends React.Component<MyProps> {
         const mMinutes = minutes < 10 ? `0${minutes}` : `${minutes}`;
         const mHours = hours < 10 ? `0${hours}` : `${hours}`;
 
+        const buttonUndo = (
+            <button type="button" className="btn btn-outline-success undo" disabled={!undoMove || disable} onClick={this.handleUndoMove}>
+                <img className="img-fluid" alt="Undo" src={Undo} />
+            </button>
+        );
+
+        const buttonRedo = (
+            <button type="button" className="btn btn-outline-success undo" disabled={!undoMove || disable} onClick={this.handleRedoMove}>
+                <img className="img-fluid" alt="Undo" src={Redo} />
+            </button>
+        );
+
         const listStep = (
             <div className="list-group mList" id="listStep">
                 {steps.map((el: History) => {
                     return (
                         <button
                             type="button"
-                            disabled={!undoMove || disable}
+                            disabled
                             key={el.index}
                             className={`list-group-item list-group-item-action ${checkIndex === el.index ? ' active' : ''}`}
                             onClick={this.handleChangeStep}
@@ -167,7 +199,9 @@ class Information extends React.Component<MyProps> {
                     <h5 className="mText"> {`Player's turn:`} </h5>
                 </div>
                 <div className="text-center">
+                    {buttonUndo}
                     <img alt="" className="img-fluid img-x" src={whichPlayer ? XPlayer : OPlayer} />
+                    {buttonRedo}
                 </div>
                 <div className="text-left">
                     <button type="button" className="btn btn-light mText" onClick={this.handleChangeHistoryOrder}>
@@ -252,7 +286,9 @@ const mapDispatchToProps = {
     handleChangeHistoryOrder,
     handleShowModal,
     handleChangeAfterPlayerClick,
-    handleAfterRestartTime
+    handleAfterRestartTime,
+    handleUndoMove,
+    handleRedoMove
 };
 
 export default connect(

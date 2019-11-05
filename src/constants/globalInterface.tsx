@@ -33,6 +33,8 @@ export interface AppState {
     numberIndex: number;
     charIndex: string;
     myTurn: boolean;
+    botIndex: number;
+    undoIndex: number;
 }
 
 // *-------------- Modal --------------*

@@ -15,7 +15,7 @@
 }
 
 
-.context {
+.dashboard .context {
     width: 1000px;
     height: 500px;
     background: white;
@@ -27,7 +27,7 @@
 }
 
 
-.context .LeftNav {
+.dashboard .context .LeftNav {
     width: 120px;
     height: 100%;
     position: absolute;
@@ -45,7 +45,7 @@
     padding: unset;
 }
 
-.vl {
+.dashboard .vl {
     border-left: 1px solid gray;
     position: absolute;
     right: 0;
@@ -54,13 +54,13 @@
     bottom: 5%;
 }
 
-.hl {
+.dashboard .hl {
     width: 50%;
     border-bottom: 1px solid gray;
     padding: unset;
 }
 
-.LeftNav > button {
+.dashboard .LeftNav > button {
     width: 98%;
     height: 120px;
     z-index: 2;
@@ -70,22 +70,22 @@
 
 }
 
-.LeftNav button:hover {
+.dashboard .LeftNav button:hover {
     background: #dddddd;
 }
 
-.selected-menu {
+.dashboard .selected-menu {
     background: #dddddd !important;
 }
 
-.testNav {
+.dashboard .testNav {
     background: white;
     opacity: 0.8;
     width: 120px;
     overflow: hidden;
 }
 
-.opa {
+.dashboard .opa {
     position: absolute;
     height: 100%;
     width: 100%;
@@ -94,11 +94,11 @@
     z-index: -1;
 }
 
-.isFind {
+.dashboard .isFind {
     background:rgb(192, 252, 197);
 }
 
-.test {
+.dashboard .test {
     height: 100%;
     width: 100%;
     display: flex;
@@ -109,7 +109,7 @@
     margin-bottom: 5px;
 }
 
-.logout {
+.dashboard .logout {
     align-self: flex-end;
     width: 98%;
     height: 100px;
@@ -121,7 +121,7 @@
 
 }
 
-.RightNav {
+.dashboard .RightNav {
     width: 300px;
     height: 100%;
     position: absolute;
@@ -138,28 +138,28 @@
     color: black;
 }
 
-.RightNav :hover{
+.dashboard .RightNav :hover{
     right: 0px;
 }
 
-.RightNav .rightFoot {
+.dashboard .RightNav .rightFoot {
     width: 100%;
     text-align: start;
     margin-top: 50px;
 }
 
-.open {
+.dashboard .open {
     right: 0px;
 }
 
-.avatar {
+.dashboard .avatar {
     vertical-align: middle;
     width: 70px;
     height: 70px;
     border-radius: 50%;
 }
 
-.lineBreak {
+.dashboard .lineBreak {
     background: black;
 }
 
@@ -170,7 +170,7 @@
     overflow: hidden;
 }
 
-.main {
+.dashboard .main {
     width: 100%;
     height: 100%;
     text-align: center;
@@ -184,15 +184,15 @@
 
 }
 
-.mSelect {
+.dashboard .mSelect {
     width: 250px;
 }
 
-.findmatch {
+.dashboard .findmatch {
     align-self: flex-end;
 }
 
-.findmatch > button {
+.dashboard .findmatch > button {
     width: 200px;
     color: WHITE;
     position: absolute;
@@ -200,7 +200,7 @@
     right: 20px;
 }
 
-.map {
+.dashboard .map {
     width: 711px;
     height: 400px;
     background: url('../bot.jpg') no-repeat;
@@ -213,7 +213,7 @@
     text-align: center;
 }
 
-.mode {
+.dashboard .mode {
     width: 200px;
     height: 220px;
     color: black;
@@ -223,64 +223,64 @@
 
 }
 
-.mode:hover {
+.dashboard .mode:hover {
     border: 2px solid yellow;
     box-shadow: 0 15px 20px rgba(0, 0, 0, 0.3);        
 }
 
-.clicked {
+.dashboard .clicked {
     border: 2px solid green;
     box-shadow: 0 15px 20px rgba(0, 0, 0, 0.3);        
 
 }
 
-.waiting {
+.dashboard .waiting {
     position: absolute;
     left: 20px;
     bottom: 25px;
     color: green;
 }
 
-#file1 {
+.dashboard #file1 {
     font-size: 16px;
     width: 300px;
     height: 30px;
 }
 
-#avatar {
+.dashboard #avatar {
     width: 100px;
     height: 100px;
 }
 
-.avatar {
+.dashboard .avatar {
     width: 50px ;
     height: 50px;
     margin-left: 20px;
 }
 
-.main .spanText {
+.dashboard .main .spanText {
     width: 200px;
 }
 
-.editBtn {
+.dashboard .editBtn {
     position: absolute;
     right:10px;
     top: 50px;
 }
 
-.userText {
+.dashboard .userText {
     width: 200px;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.userText1 {
+.dashboard .userText1 {
     width: 400px;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.invaText{
+.dashboard .invaText{
     width: unset;
     margin-left: 20px;
 }

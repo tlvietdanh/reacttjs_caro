@@ -9,7 +9,6 @@ interface MyProps {
 }
 
 interface MyState {
-    isPlayWithBots: boolean;
     gameMode: boolean;
 }
 
@@ -18,44 +17,31 @@ class PlayGame extends React.Component<MyProps, MyState> {
         super(props);
 
         this.state = {
-            isPlayWithBots: true,
             gameMode: true
         };
 
-        this.handleChangeSelect = this.handleChangeSelect.bind(this);
         this.handleFindingMatch = this.handleFindingMatch.bind(this);
         this.handleChangeGameMode = this.handleChangeGameMode.bind(this);
     }
 
-    handleChangeSelect(e: any) {
-        this.setState({
-            isPlayWithBots: !(e.currentTarget.value === '1')
-        });
-    }
-
     handleFindingMatch() {
         const { handleFindingMatch } = this.props;
-        const { gameMode, isPlayWithBots } = this.state;
-        handleFindingMatch(gameMode, isPlayWithBots);
+        const { gameMode } = this.state;
+        handleFindingMatch(gameMode);
     }
 
     handleChangeGameMode(e: any) {
         this.setState({
-            gameMode: e.currentTarget.name === 'normal'
+            gameMode: e.currentTarget.name === 'bot'
         });
     }
 
     render() {
         const { isFinding } = this.props;
-        const { isPlayWithBots, gameMode } = this.state;
+        const { gameMode } = this.state;
         return (
             <div className="col-8 container main d-flex">
-                <div className="row">
-                    <select className="custom-select mSelect" onChange={this.handleChangeSelect} defaultValue={isPlayWithBots ? '2' : '1'}>
-                        <option value="1">Play with peoples</option>
-                        <option value="2">Play with bots</option>
-                    </select>
-                </div>
+                <div className="row">Wellcome to TicTacToe</div>
                 <div className="row hl mt-4" />
                 <div className="row mt-4">
                     <button
@@ -65,12 +51,12 @@ class PlayGame extends React.Component<MyProps, MyState> {
                         data-placement="bottom"
                         data-html="true"
                         title="In this mode, you can undo move and no time limit"
-                        name="normal"
+                        name="bot"
                         onClick={this.handleChangeGameMode}
                     >
                         <img src={bot} className="card-img-top" alt="In this mode, you can undo move and no time limit" />
                         <div className="card-body">
-                            <h5 className="card-title text-left">Normal</h5>
+                            <h5 className="card-title text-left">Play With Bot</h5>
                         </div>
                     </button>
                     <button
@@ -80,12 +66,12 @@ class PlayGame extends React.Component<MyProps, MyState> {
                         data-placement="bottom"
                         data-html="true"
                         title="In this mode, you can't undo move and time limit for each step is 60s"
-                        name="competitive"
+                        name="human"
                         onClick={this.handleChangeGameMode}
                     >
                         <img src={bot} className="card-img-top" alt="In this mode, you can't undo move and time limit for each step is 60s" />
                         <div className="card-body">
-                            <h5 className="card-title text-left">Competitive</h5>
+                            <h5 className="card-title text-left">Play With Human</h5>
                         </div>
                     </button>
                 </div>
