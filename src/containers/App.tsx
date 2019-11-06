@@ -1,23 +1,29 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Redirect } from 'react-router';
+import { withRouter } from 'react-router';
 import Square from './Square';
 import Modal from './Modal';
 import Information from './Information';
-import { ReducerType, MySquare } from '../constants/globalInterface';
+import { ReducerType, MySquare, Room } from '../constants/globalInterface';
 import * as ConstVar from '../constants/constVariables';
 import { handleLogout, handleCheckLoginRequest } from '../actions/LoginAction';
 
 import {
     handleInitialBoard,
-    handleClick,
+    handleGuestClick,
     handleCheckWinnerChickenDinner,
     handlePlayAgains,
     handleChangeAfterPlayerClick,
     handleCloseModal,
     handleListStepClick,
     handleChangeHistoryOrder,
-    handleResetTime
+    handleResetTime,
+    handleChangePlayerTurn,
+    handleShowModal,
+    handleQuitGame,
+    handleAskForTie,
+    handleAskForUndo,
+    handleUndoMove
 } from '../actions/index';
 
 export interface AppProps {
@@ -26,9 +32,16 @@ export interface AppProps {
     squares: MySquare[];
     isLogin: boolean;
     checkLogin: boolean;
+    io: any;
+    Room: Room;
+    username: string;
+    gameMode: boolean;
+    startGame: boolean;
+    askTie: boolean;
+    askUndo: boolean;
 
     handleInitialBoard: Function;
-    handleClick: Function;
+    handleGuestClick: Function;
     handleCheckWinnerChickenDinner: Function;
     handlePlayAgains: Function;
     handleCloseModal: Function;
@@ -38,6 +51,13 @@ export interface AppProps {
     handleResetTime: Function;
     handleLogout: Function;
     handleCheckLoginRequest: Function;
+    handleChangePlayerTurn: Function;
+    handleShowModal: Function;
+    handleQuitGame: Function;
+    history: any;
+    handleAskForTie: Function;
+    handleAskForUndo: Function;
+    handleUndoMove: Function;
 }
 
 class App extends React.Component<AppProps> {
@@ -53,9 +73,65 @@ class App extends React.Component<AppProps> {
     }
 
     UNSAFE_componentWillMount(): void {
-        const { handleInitialBoard, handleCheckLoginRequest, checkLogin } = this.props;
-        if (!checkLogin) handleCheckLoginRequest();
+        const {
+            handleInitialBoard,
+            handleGuestClick,
+            Room,
+            username,
+            handleChangePlayerTurn,
+            handleShowModal,
+            gameMode,
+            handleQuitGame,
+            io,
+            handleAskForTie,
+            handleAskForUndo,
+            handleUndoMove
+        } = this.props;
         handleInitialBoard();
+        if (Room.host === username || gameMode) {
+            handleChangePlayerTurn();
+        }
+        io.on('SERVER_SEND_INDEX', (index: number) => {
+            handleGuestClick(index);
+        });
+        io.on('SERVER_PLAYER_QUIT_GAME', () => {
+            handleShowModal('The enemy has left the game. You are the winner now', username === Room.host ? 'X' : 'O');
+        });
+        io.on('SERVER_SURRENDER', () => {
+            handleShowModal('The enemy is surrenderd, you are the winner now', username === Room.host ? 'X' : 'O');
+        });
+        io.on('SERVER_ASK_FOR_TIE_GAME', () => {
+            handleShowModal('The enemy is asking for a tie game, would you accept it?', 'ask');
+            handleAskForTie();
+        });
+        io.on('SERVER_ASK_UNDO', () => {
+            handleShowModal('The enemy is asking for undo lasted step, would you accept it?', 'ask');
+            handleAskForUndo();
+        });
+        io.on('disconnect', () => {
+            handleQuitGame();
+        });
+        io.on('SERVER_ACCEPT_TIE', () => {
+            handleShowModal('The game is ended in tie', '');
+        });
+        io.on('SERVER_ACCEPT_UNDO', () => {
+            handleUndoMove();
+            handleAskForUndo();
+        });
+        io.on('SERVER_REJECT_UNDO', () => {
+            handleAskForUndo();
+        });
+        io.on('CLIENT_REJECT_TIE', () => {
+            handleAskForTie();
+        })
+    }
+
+    componentWillUnmount(): void {
+        const { io, Room, handleQuitGame, gameMode, startGame } = this.props;
+        if (!gameMode && !startGame) {
+            io.emit('CLIENT_PLAYER_QUIT_GAME', Room);
+        }
+        handleQuitGame();
     }
 
     handlePlayAgains(): void {
@@ -90,9 +166,9 @@ class App extends React.Component<AppProps> {
     }
 
     render(): JSX.Element {
-        const { charIndex, numberIndex, squares, checkLogin } = this.props;
-        if (!checkLogin) {
-            return <Redirect to="/login" />;
+        const { charIndex, numberIndex, squares, startGame, history } = this.props;
+        if (!startGame) {
+            if (history) history.replace('/');
         }
         const mSquares = [];
 
@@ -162,13 +238,20 @@ const mapStateToProps = (state: ReducerType) => {
         numberIndex: state.app.numberIndex,
         squares: state.app.squares,
         isLogin: state.loginReducer.isLogin,
-        checkLogin: state.loginReducer.checkLogin
+        checkLogin: state.loginReducer.checkLogin,
+        io: state.io,
+        Room: state.app.Room,
+        username: state.loginReducer.username,
+        gameMode: state.app.gameMode,
+        startGame: state.dashboard.startGame,
+        askTie: state.app.askTie,
+        askUndo: state.app.askUndo
     };
 };
 
 const mapDispatchToProps = {
     handleInitialBoard,
-    handleClick,
+    handleGuestClick,
     handlePlayAgains,
     handleCheckWinnerChickenDinner,
     handleChangeAfterPlayerClick,
@@ -177,10 +260,18 @@ const mapDispatchToProps = {
     handleResetTime,
     handleChangeHistoryOrder,
     handleLogout,
-    handleCheckLoginRequest
+    handleCheckLoginRequest,
+    handleChangePlayerTurn,
+    handleShowModal,
+    handleQuitGame,
+    handleAskForTie,
+    handleAskForUndo,
+    handleUndoMove
 };
 
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(App);
+export default withRouter(
+    connect(
+        mapStateToProps,
+        mapDispatchToProps
+    )(App)
+);

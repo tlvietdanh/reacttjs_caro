@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { handleChangesetting, handlePlayAgains, handleResetTime } from '../actions/index';
-import { ReducerType } from '../constants/globalInterface';
+import { handleChangesetting, handlePlayAgains, handleResetTime, handleShowModal, handleQuitGame, handleAskForTie } from '../actions/index';
+import { ReducerType, Room } from '../constants/globalInterface';
 
 interface SettingProps {
     timeLimit: number;
@@ -9,6 +9,13 @@ interface SettingProps {
     handleChangesetting: Function;
     handlePlayAgains: Function;
     handleResetTime: Function;
+    handleShowModal: Function;
+    Room: Room;
+    io: any;
+    gameMode: boolean;
+    username: string;
+    handleQuitGame: Function;
+    handleAskForTie: Function;
 }
 
 interface MyState {
@@ -29,6 +36,9 @@ class Setting extends React.Component<SettingProps, MyState> {
         this.handleChangeUndoMove = this.handleChangeUndoMove.bind(this);
         this.handleSaveSetting = this.handleSaveSetting.bind(this);
         this.handleRestart = this.handleRestart.bind(this);
+        this.handleAskForTie = this.handleAskForTie.bind(this);
+        this.handleSurrender = this.handleSurrender.bind(this);
+        this.handleQuit = this.handleQuit.bind(this);
     }
 
     handleChangeLimit(e: React.FormEvent<HTMLInputElement>): void {
@@ -52,9 +62,49 @@ class Setting extends React.Component<SettingProps, MyState> {
         handleResetTime();
     }
 
-    render(): JSX.Element {
-        const { timeLimit, undoMove } = this.state;
+    handleAskForTie() {
+        const { io, Room, handleAskForTie } = this.props;
+        io.emit('CLIENT_ASK_FOR_TIE_GAME', Room);
+        handleAskForTie();
+    }
 
+    handleSurrender() {
+        const { io, Room, handleQuitGame } = this.props;
+        io.emit('CLIENT_SURRENDER', Room);
+        handleQuitGame();
+    }
+
+    handleQuit() {
+        const { gameMode, handleQuitGame, io, Room } = this.props;
+        if (!gameMode) {
+            io.emit('CLIENT_PLAYER_QUIT_GAME', Room);
+        }
+        handleQuitGame();
+    }
+
+    render(): JSX.Element {
+        const { gameMode } = this.props;
+        const { timeLimit, undoMove } = this.state;
+        const mybtn = (
+            <div>
+                <button className="btn btn-outline-success" style={{ width: '200px' }} onClick={this.handleAskForTie} type="button">
+                    Ask for TIE
+                </button>
+                <button className="btn btn-outline-success mt-3" style={{ width: '200px' }} onClick={this.handleSurrender} type="button">
+                    Surrender
+                </button>
+            </div>
+        );
+        const mybtn2 = (
+            <div>
+                <button className="btn btn-outline-success" style={{ width: '200px' }} onClick={this.handleSaveSetting} type="button">
+                    Save
+                </button>
+                <button className="btn btn-outline-success mt-3" style={{ width: '200px' }} onClick={this.handleRestart} type="button">
+                    Restart
+                </button>
+            </div>
+        );
         return (
             <div className="card-body">
                 <div className="text-left">
@@ -96,11 +146,9 @@ class Setting extends React.Component<SettingProps, MyState> {
                     <span className="ml-4">Off</span>
                 </div>
                 <div className="text-center mt-5">
-                    <button className="btn btn-outline-success" style={{ width: '200px' }} onClick={this.handleSaveSetting} type="button">
-                        Save
-                    </button>
-                    <button className="btn btn-outline-success mt-3" style={{ width: '200px' }} onClick={this.handleRestart} type="button">
-                        Restart
+                    {gameMode ? mybtn2 : mybtn}
+                    <button className="btn btn-outline-success mt-3" style={{ width: '200px' }} onClick={this.handleQuit} type="button">
+                        Quit Game
                     </button>
                 </div>
             </div>
@@ -110,16 +158,25 @@ class Setting extends React.Component<SettingProps, MyState> {
 
 const mapStateToProps = (state: ReducerType) => {
     const { timeLimit, undoMove } = state.infoReducer;
+    const { Room, gameMode } = state.app;
+    const { username } = state.loginReducer;
     return {
         timeLimit,
-        undoMove
+        undoMove,
+        io: state.io,
+        Room,
+        gameMode,
+        username
     };
 };
 
 const mapDispatchToProps = {
     handleChangesetting,
     handlePlayAgains,
-    handleResetTime
+    handleResetTime,
+    handleShowModal,
+    handleQuitGame,
+    handleAskForTie
 };
 
 export default connect(

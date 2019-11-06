@@ -16,10 +16,13 @@ export default function dashboard(state = initialState, action: ActionType) {
             return { ...state, isPlayWithBots: true };
         }
         case type.HANDLE_FINDING_MATCH: {
-            const { gameMode, isPlayWithBots } = action.payload;
-            if (isPlayWithBots) {
-                
-            }
+            return { ...state };
+        }
+        case type.HANDLE_START_GAME: {
+            return { ...state, startGame: true };
+        }
+        case type.HANDLE_QUIT_GAME: {
+            return { ...state, startGame: false };
         }
         default:
             return state;

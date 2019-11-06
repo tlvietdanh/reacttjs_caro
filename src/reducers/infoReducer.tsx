@@ -9,7 +9,9 @@ const initialState: InfoState = {
     isclear: true,
     timeLimit: 0,
     undoMove: true,
-    isRestartTime: false
+    isRestartTime: false,
+    listMessages:  [],
+    myMessage: ''
 };
 
 export default function infoReducer(state = initialState, action: ActionType) {
@@ -39,6 +41,19 @@ export default function infoReducer(state = initialState, action: ActionType) {
         }
         case type.USER_HANDLE_AFTER_RESTART_TIME: {
             return { ...state, isRestartTime: false };
+        }
+        case type.HANDLE_CHANGE_MESSAGE: {
+            const { value } = action.payload;
+            return { ...state, myMessage: value };
+        }
+        case type.HANDLE_SEND_MESSAGE: {
+            const { value } = action.payload;
+            const { listMessages } = state;
+            listMessages.push(value);
+            return { ...state, listMessages };
+        }
+        case type.HANDLE_RESTART_INFO: {
+            return initialState;
         }
         default:
             return state;

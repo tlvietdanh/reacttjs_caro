@@ -39,7 +39,8 @@
     "import/no-unresolved": 2,
     "@typescript-eslint/explicit-function-return-type": 0,
     "no-shadow": 0,
-    "camelcase": 0
+    "camelcase": 0,
+    "@typescript-eslint/no-explicit-any": 0
   },
   "settings": {
     "react": {

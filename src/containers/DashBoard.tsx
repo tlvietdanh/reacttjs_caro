@@ -1,15 +1,18 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { withRouter, Redirect } from 'react-router';
+import { withRouter } from 'react-router';
 import { handleCheckLoginRequest, handleLogout, handleModifyUserInfo } from '../actions/LoginAction';
+import { handleChangeGameMode, handleJoinRoom, handleStartGame, handleShowModal, handleQuitGame } from '../actions/index';
 import { handleChangeSelect } from '../actions/dashboardActions';
-import { ReducerType } from '../constants/globalInterface';
+import { ReducerType, Room } from '../constants/globalInterface';
 import PlayGame from '../components/dashboard/PlayGame';
 import UserInfo from '../components/dashboard/UserInfo';
+
 import '../assets/css/dashboard.css';
 import play from '../assets/play_icon.png';
 import user from '../assets/icon_user.png';
 import exit from '../assets/icon_exit.png';
+import defaultAvatar from '../assets/default.png';
 
 interface MyProps {
     checkLogin: boolean;
@@ -19,12 +22,20 @@ interface MyProps {
     email: string;
     avatar: string;
     status: string;
+    gameMode: boolean;
 
     handleCheckLoginRequest: Function;
     handleChangeSelect: Function;
     handleLogout: Function;
     handleModifyUserInfo: Function;
+    handleChangeGameMode: Function;
+    handleJoinRoom: Function;
+    handleStartGame: Function;
     history: any;
+    io: any;
+    Room: Room;
+    handleShowModal: Function;
+    handleQuitGame: Function;
 }
 
 interface MyState {
@@ -47,11 +58,23 @@ class Dashboard extends React.Component<MyProps, MyState> {
         this.handleFindingMatch = this.handleFindingMatch.bind(this);
         this.handleChangeMenu = this.handleChangeMenu.bind(this);
         this.handleModifyUserInfo = this.handleModifyUserInfo.bind(this);
+        this.handleChangeGameMode = this.handleChangeGameMode.bind(this);
     }
 
     UNSAFE_componentWillMount() {
-        const { handleCheckLoginRequest, checkLogin } = this.props;
-        if (!checkLogin) handleCheckLoginRequest();
+        const { handleCheckLoginRequest, io, handleStartGame, handleShowModal, username, Room } = this.props;
+        handleCheckLoginRequest();
+        if (Room.id !== '') io.emit('CLIENT_PLAYER_QUIT_GAME', Room);
+        io.on('SERVER_GUEST_INFO', (res: Room) => {
+            const { history, handleJoinRoom } = this.props;
+            handleJoinRoom(res);
+            handleStartGame();
+            if (history) history.push('/game');
+        });
+        io.on('SERVER_PLAYER_QUIT_GAME', () => {
+            handleShowModal('The enemy has left the game. You are the winner now', username === Room.host ? 'X' : 'O');
+        });
+        handleQuitGame();
     }
 
     handleLogout() {
@@ -77,12 +100,18 @@ class Dashboard extends React.Component<MyProps, MyState> {
         }
     }
 
-    handleFindingMatch(gameMode: boolean) {
+    handleFindingMatch() {
         const { isFinding } = this.state;
+        const { username, io, gameMode, handleStartGame } = this.props;
         if (isFinding) {
-            this.setState({
-                isFinding: false
-            });
+            this.setState(
+                {
+                    isFinding: false
+                },
+                () => {
+                    io.emit('STOP_FINDING_MATCH', username);
+                }
+            );
         } else {
             this.setState(
                 {
@@ -91,7 +120,12 @@ class Dashboard extends React.Component<MyProps, MyState> {
                 () => {
                     if (gameMode) {
                         const { history } = this.props;
-                        if (history) history.push('/game');
+                        if (history) {
+                            handleStartGame();
+                            history.push('/game');
+                        }
+                    } else {
+                        io.emit('FINDING_MATCH', username);
                     }
                 }
             );
@@ -110,16 +144,21 @@ class Dashboard extends React.Component<MyProps, MyState> {
         }
     }
 
+    handleChangeGameMode(gameMode: boolean) {
+        const { handleChangeGameMode } = this.props;
+        handleChangeGameMode(gameMode);
+    }
+
     handleModifyUserInfo(tempEmail: string, tempFullname: string, tempAvatar: string, tempOldPass: string, tempNewPass: string) {
         const { handleModifyUserInfo } = this.props;
         handleModifyUserInfo(tempEmail, tempFullname, tempAvatar, tempOldPass, tempNewPass);
     }
 
     render() {
-        const { checkLogin, username, fullname, email, avatar, status } = this.props;
+        const { checkLogin, username, fullname, email, avatar, status, gameMode, history } = this.props;
         const { isOpen, isFinding, menu } = this.state;
         if (!checkLogin) {
-            return <Redirect to="/login" />;
+            if (history) history.replace('/login');
         }
         return (
             <div className="container-fluid dashboard">
@@ -149,7 +188,12 @@ class Dashboard extends React.Component<MyProps, MyState> {
                         <div className="vl" />
                     </div>
                     {menu ? (
-                        <PlayGame handleFindingMatch={this.handleFindingMatch} isFinding={isFinding} />
+                        <PlayGame
+                            handleFindingMatch={this.handleFindingMatch}
+                            isFinding={isFinding}
+                            handleChangeGameMode={this.handleChangeGameMode}
+                            gameMode={gameMode}
+                        />
                     ) : (
                         <UserInfo
                             username={username}
@@ -165,7 +209,7 @@ class Dashboard extends React.Component<MyProps, MyState> {
                         <div className={isFinding ? 'opa isFind' : 'opa'} />
                         <div className="container-fluid">
                             <div className="mt-5 row ">
-                                <img src={avatar} className="rounded avatar" alt="..." />
+                                <img src={avatar === '' ? defaultAvatar : avatar} className="rounded avatar" alt="..." />
                                 <p className="ml-3 mt-3 userText ">{username}</p>
                             </div>
                             <div className="ml-2 mt-5 text-left d-flex">
@@ -199,7 +243,10 @@ const mapStateToProps = (state: ReducerType) => {
         fullname: state.loginReducer.fullname,
         email: state.loginReducer.email,
         avatar: state.loginReducer.avatar,
-        status: state.loginReducer.status
+        status: state.loginReducer.status,
+        io: state.io,
+        gameMode: state.app.gameMode,
+        Room: state.app.Room
     };
 };
 
@@ -207,7 +254,12 @@ const mapDispatchToProps = {
     handleCheckLoginRequest,
     handleChangeSelect,
     handleLogout,
-    handleModifyUserInfo
+    handleModifyUserInfo,
+    handleChangeGameMode,
+    handleJoinRoom,
+    handleStartGame,
+    handleShowModal,
+    handleQuitGame
 };
 
 export default withRouter(

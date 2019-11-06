@@ -9,6 +9,7 @@ interface MyProps {
     password: string;
     email: string;
     loading: boolean;
+    isFacebook: boolean;
     isRegisterSuccess: boolean;
     status: string;
     // isLogin: boolean;
@@ -22,14 +23,14 @@ interface MyProps {
 }
 
 interface MyState {
-    isFacebook: boolean;
+    isFacebookState: boolean;
 }
 
 class Register extends React.Component<MyProps, MyState> {
     constructor(props: MyProps) {
         super(props);
         this.state = {
-            isFacebook: false
+            isFacebookState: false
         };
 
         this.handleRegister = this.handleRegister.bind(this);
@@ -38,13 +39,6 @@ class Register extends React.Component<MyProps, MyState> {
         this.handleLoginByGoogle = this.handleLoginByGoogle.bind(this);
 
         this.handleFacebookBtnClick = this.handleFacebookBtnClick.bind(this);
-    }
-
-    componentWillMount() {
-        const { handleLogin, isRegisterSuccess, username, password } = this.props;
-        if (isRegisterSuccess) {
-            handleLogin(username, password);
-        }
     }
 
     handleRegister(e: React.FormEvent<HTMLButtonElement>) {
@@ -59,9 +53,6 @@ class Register extends React.Component<MyProps, MyState> {
     }
 
     handleLoginByFacebook(response: any) {
-        this.setState({
-            isFacebook: false
-        });
         if (!response.status) {
             const { handleRegister } = this.props;
             handleRegister(response.email, response.id, response.name, response.email, response.picture.data.url);
@@ -78,31 +69,35 @@ class Register extends React.Component<MyProps, MyState> {
 
     handleFacebookBtnClick() {
         this.setState({
-            isFacebook: true
+            isFacebookState: true
         });
     }
 
     render() {
         const { username, password, fullname, loading, email, status } = this.props;
-        const { isFacebook } = this.state;
+        const { isFacebookState } = this.state;
         const facebook = (
             <FacebookLogin
                 appId="572752733493843" // APP ID NOT CREATED YET
                 fields="name,email,picture"
                 callback={this.handleLoginByFacebook}
-                cssClass="social-button d-none"
+                cssClass="social-button"
+                icon="fa-facebook-f"
+                textButton=""
                 autoLoad
             />
+        );
+        const myButton = (
+            <button type="button" className="btn" onClick={this.handleFacebookBtnClick}>
+                <i className="fab fa-facebook-f" />
+            </button>
         );
         return (
             <div className="form-container sign-up-container">
                 <form action="#">
                     <h1>Sign Up</h1>
                     <div className="social-container">
-                        <button type="button" className="btn" onClick={this.handleFacebookBtnClick}>
-                            <i className="fab fa-facebook-f" />
-                        </button>
-                        {isFacebook && facebook}
+                        {isFacebookState ? facebook : myButton}
                         <GoogleLogin
                             clientId="264218692025-aqmc5agm1fmun0d793hl39ctugaa8jgu.apps.googleusercontent.com"
                             render={renderProps => (
@@ -132,11 +127,11 @@ class Register extends React.Component<MyProps, MyState> {
                         onChange={this.handleChangeInfo}
                     />
                     <input
-                        type="email"
+                        type="text"
                         name="email"
                         placeholder="Email Address"
                         className="form-control"
-                        value={email}
+                        defaultValue={email}
                         onChange={this.handleChangeInfo}
                     />
                     <input

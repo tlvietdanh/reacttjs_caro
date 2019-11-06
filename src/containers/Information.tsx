@@ -6,7 +6,7 @@ import ASC from '../assets/asc.png';
 import DEC from '../assets/dec.png';
 import Setting from './Setting';
 import * as ConstVar from '../constants/constVariables';
-import { History, InfoState, ReducerType } from '../constants/globalInterface';
+import { History, InfoState, ReducerType, Room, Message } from '../constants/globalInterface';
 import Undo from '../assets/undo-arrow.png';
 import Redo from '../assets/redo.png';
 
@@ -21,7 +21,10 @@ import {
     handleChangeAfterPlayerClick,
     handleAfterRestartTime,
     handleUndoMove,
-    handleRedoMove
+    handleRedoMove,
+    handleChangeMessage,
+    handleSendMessage,
+    handleAskForUndo
 } from '../actions/index';
 
 interface MyProps {
@@ -33,7 +36,12 @@ interface MyProps {
     disable: boolean;
     whichPlayer: boolean;
     infoState: InfoState;
-
+    gameMode: boolean;
+    io: any;
+    Room: Room;
+    username: string;
+    myTurn: boolean;
+    undoIndex: number;
     countDown: Function;
     handleTapChange: Function;
     handleChangesetting: Function;
@@ -45,15 +53,25 @@ interface MyProps {
     handleAfterRestartTime: Function;
     handleUndoMove: Function;
     handleRedoMove: Function;
+    handleChangeMessage: Function;
+    handleSendMessage: Function;
+    handleAskForUndo: Function;
 }
 
-class Information extends React.Component<MyProps> {
+interface MyState {
+    messages: Array<any>;
+}
+
+class Information extends React.Component<MyProps, MyState> {
     private interval: number;
+
+    private counter: number;
 
     constructor(props: MyProps) {
         super(props);
 
         this.interval = 0;
+        this.counter = 0;
         this.handleTabChange = this.handleTabChange.bind(this);
         this.handleChangeSetting = this.handleChangeSetting.bind(this);
         this.handleStartTime = this.handleStartTime.bind(this);
@@ -65,6 +83,15 @@ class Information extends React.Component<MyProps> {
         this.handleChangeHistoryOrder = this.handleChangeHistoryOrder.bind(this);
         this.handleUndoMove = this.handleUndoMove.bind(this);
         this.handleRedoMove = this.handleRedoMove.bind(this);
+        this.handleSendMessage = this.handleSendMessage.bind(this);
+        this.handleChangeMessage = this.handleChangeMessage.bind(this);
+    }
+
+    componentWillMount() {
+        const { io, handleSendMessage } = this.props;
+        io.on('SERVER_SEND_MESSAGE', (res: Message) => {
+            handleSendMessage(res);
+        });
     }
 
     componentDidMount(): void {
@@ -74,12 +101,17 @@ class Information extends React.Component<MyProps> {
     componentDidUpdate(): void {
         const { isRunningTime, isPlayerClick, infoState, handleAfterRestartTime } = this.props;
         if (!isRunningTime) this.handleStopTime();
-        if (infoState.isRestartTime) {
+        if (infoState.isRestartTime && this.counter === 0) {
             this.handleStopTime();
             this.handleStartTime();
             handleAfterRestartTime();
         }
         if (isPlayerClick) this.handleScrollToBottom();
+    }
+
+    componentWillUnmount() {
+        this.handleStopTime();
+        this.counter = 0;
     }
 
     handleTimeOut(): void {
@@ -114,10 +146,12 @@ class Information extends React.Component<MyProps> {
     }
 
     handleStartTime(): void {
+        this.counter = 1;
         this.interval = window.setInterval(this.countDown, 1000);
     }
 
     handleStopTime(): void {
+        this.counter = 0;
         clearInterval(this.interval);
     }
 
@@ -129,7 +163,6 @@ class Information extends React.Component<MyProps> {
 
     handleScrollToBottom(): void {
         const { stepOrder, handleChangeAfterPlayerClick } = this.props;
-
         const scroll = document.getElementById('listStep');
         if (scroll !== null) {
             if (stepOrder) scroll.scrollTop = scroll.scrollHeight;
@@ -144,8 +177,14 @@ class Information extends React.Component<MyProps> {
     }
 
     handleUndoMove() {
-        const { handleUndoMove } = this.props;
-        handleUndoMove();
+        const { handleUndoMove, gameMode, io, Room, handleAskForUndo, undoIndex } = this.props;
+        if (undoIndex) return;
+        if (gameMode) {
+            handleUndoMove();
+        } else {
+            io.emit('CLIENT_ASK_UNDO', Room);
+            handleAskForUndo();
+        }
     }
 
     handleRedoMove() {
@@ -153,17 +192,36 @@ class Information extends React.Component<MyProps> {
         handleRedoMove();
     }
 
-    render(): JSX.Element {
-        const { infoState, steps, checkIndex, disable, whichPlayer, stepOrder } = this.props;
+    handleSendMessage() {
+        const { infoState, Room, io, username, handleSendMessage, handleChangeMessage } = this.props;
+        const { myMessage } = infoState;
+        if (myMessage.length !== 0) {
+            handleSendMessage({ name: username, value: myMessage });
+            handleChangeMessage('');
+            io.emit('CLIENT_SEND_MESSAGE', { Room, value: { name: username, value: myMessage } });
+            const scroll = document.getElementById('chatbox');
+            if (scroll !== null) {
+                scroll.scrollTop = scroll.scrollHeight;
+            }
+        }
+    }
 
-        const { seconds, minutes, hours, isInfo, undoMove } = infoState;
+    handleChangeMessage(e: any) {
+        const { handleChangeMessage } = this.props;
+        handleChangeMessage(e.currentTarget.value);
+    }
+
+    render(): JSX.Element {
+        const { infoState, steps, checkIndex, disable, whichPlayer, stepOrder, gameMode, username, myTurn } = this.props;
+
+        const { seconds, minutes, hours, isInfo, undoMove, listMessages, myMessage } = infoState;
 
         const mSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`;
         const mMinutes = minutes < 10 ? `0${minutes}` : `${minutes}`;
         const mHours = hours < 10 ? `0${hours}` : `${hours}`;
 
         const buttonUndo = (
-            <button type="button" className="btn btn-outline-success undo" disabled={!undoMove || disable} onClick={this.handleUndoMove}>
+            <button type="button" className="btn btn-outline-success undo" disabled={!undoMove || disable || !myTurn} onClick={this.handleUndoMove}>
                 <img className="img-fluid" alt="Undo" src={Undo} />
             </button>
         );
@@ -193,6 +251,55 @@ class Information extends React.Component<MyProps> {
             </div>
         );
 
+        const myStep = (
+            <div>
+                <div className="text-left">
+                    <button type="button" className="btn btn-light mText" onClick={this.handleChangeHistoryOrder}>
+                        <h5 className="mText d-inline"> History: </h5>
+                        <img className="fa fa-life-ring fa-3x iconAsc" src={stepOrder ? DEC : ASC} alt="" />
+                    </button>
+                </div>
+                <div className="text-center d-inline-block mt-1">{listStep}</div>
+            </div>
+        );
+        const chatBox = (
+            <div>
+                <div className="list-group mList" id="chatbox">
+                    {listMessages.map((el: Message, index) => {
+                        return (
+                            <button
+                                type="button"
+                                disabled
+                                // eslint-disable-next-line react/no-array-index-key
+                                key={index}
+                                className="list-group-item list-group-item-action nexline"
+                                onClick={this.handleChangeStep}
+                            >
+                                <span className={el.name === username ? 'mtext-left' : 'mtext-right'}>{`${el.name}: `}</span>
+                                <span>{el.value}</span>
+                            </button>
+                        );
+                    })}
+                </div>
+                <div className="input-group mb-3">
+                    <input
+                        type="text"
+                        className="form-control"
+                        placeholder="type your message here"
+                        aria-label="Recipient's username"
+                        aria-describedby="basic-addon2"
+                        value={myMessage}
+                        onChange={this.handleChangeMessage}
+                    />
+                    <div className="input-group-append">
+                        <button type="button" className="btn btn-outline-success" onClick={this.handleSendMessage}>
+                            send
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+
         const Infor = (
             <div className="card-body">
                 <div className="text-left">
@@ -201,15 +308,9 @@ class Information extends React.Component<MyProps> {
                 <div className="text-center">
                     {buttonUndo}
                     <img alt="" className="img-fluid img-x" src={whichPlayer ? XPlayer : OPlayer} />
-                    {buttonRedo}
+                    {gameMode && buttonRedo}
                 </div>
-                <div className="text-left">
-                    <button type="button" className="btn btn-light mText" onClick={this.handleChangeHistoryOrder}>
-                        <h5 className="mText d-inline"> History: </h5>
-                        <img className="fa fa-life-ring fa-3x iconAsc" src={stepOrder ? DEC : ASC} alt="" />
-                    </button>
-                </div>
-                <div className="text-center d-inline-block mt-1">{listStep}</div>
+                {gameMode ? myStep : chatBox}
             </div>
         );
 
@@ -263,7 +364,7 @@ class Information extends React.Component<MyProps> {
 }
 
 const mapStateToProps = (state: ReducerType) => {
-    const { steps, checkIndex, disable, whichPlayer, stepOrder, isPlayerClick, isRunningTime } = state.app;
+    const { steps, checkIndex, disable, whichPlayer, stepOrder, isPlayerClick, isRunningTime, gameMode, Room } = state.app;
     const infoState = state.infoReducer;
     return {
         isRunningTime,
@@ -273,7 +374,13 @@ const mapStateToProps = (state: ReducerType) => {
         checkIndex,
         disable,
         whichPlayer,
-        infoState
+        infoState,
+        gameMode,
+        io: state.io,
+        Room,
+        username: state.loginReducer.username,
+        myTurn: state.app.myTurn,
+        undoIndex: state.app.undoIndex
     };
 };
 
@@ -288,7 +395,10 @@ const mapDispatchToProps = {
     handleChangeAfterPlayerClick,
     handleAfterRestartTime,
     handleUndoMove,
-    handleRedoMove
+    handleRedoMove,
+    handleChangeMessage,
+    handleSendMessage,
+    handleAskForUndo
 };
 
 export default connect(

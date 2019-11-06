@@ -7,12 +7,14 @@ interface MyProps {
     password: string;
     loading: boolean;
     status: string;
+    isFacebook: boolean;
     handleLogin: Function;
     handleChangeInfo: Function;
+    handleIsFacebookClick: Function;
 }
 
 interface MyState {
-    isFacebook: boolean;
+    isFacebookState: boolean;
 }
 
 class SignIn extends React.Component<MyProps, MyState> {
@@ -20,7 +22,7 @@ class SignIn extends React.Component<MyProps, MyState> {
         super(props);
 
         this.state = {
-            isFacebook: false
+            isFacebookState: false
         };
         this.handleChangeInfo = this.handleChangeInfo.bind(this);
         this.handleLogin = this.handleLogin.bind(this);
@@ -41,15 +43,12 @@ class SignIn extends React.Component<MyProps, MyState> {
 
     handleFacebookBtnClick() {
         this.setState({
-            isFacebook: true
+            isFacebookState: true
         });
     }
 
     handleLoginByFacebook(response: any) {
         const { handleLogin } = this.props;
-        this.setState({
-            isFacebook: false
-        });
         if (!response.status) {
             handleLogin(response.email, response.id);
         }
@@ -65,7 +64,7 @@ class SignIn extends React.Component<MyProps, MyState> {
 
     render() {
         const { username, password, loading, status } = this.props;
-        const { isFacebook } = this.state;
+        const { isFacebookState } = this.state;
         const facebook = (
             <FacebookLogin
                 appId="572752733493843" // APP ID NOT CREATED YET
@@ -87,7 +86,7 @@ class SignIn extends React.Component<MyProps, MyState> {
                 <form>
                     <h1>Sign in</h1>
                     <div className="social-container">
-                        {isFacebook ? facebook : myButton}
+                        {isFacebookState ? facebook : myButton}
                         <GoogleLogin
                             clientId="264218692025-aqmc5agm1fmun0d793hl39ctugaa8jgu.apps.googleusercontent.com"
                             render={renderProps => (

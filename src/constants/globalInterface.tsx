@@ -17,6 +17,12 @@ export interface ActionType {
 export interface AppRedu {
     appState: AppState;
 }
+
+export interface Room {
+    id: string;
+    host: string;
+    guest: string;
+}
 export interface AppState {
     squares: MySquare[];
     whichPlayer: boolean;
@@ -35,6 +41,16 @@ export interface AppState {
     myTurn: boolean;
     botIndex: number;
     undoIndex: number;
+    gameMode: boolean;
+    indexOfBot: number;
+    Room: Room;
+    askTie: boolean;
+    askUndo: boolean;
+}
+
+export interface Message {
+    name: string;
+    value: string;
 }
 
 // *-------------- Modal --------------*
@@ -47,6 +63,8 @@ export interface InfoState {
     timeLimit: number;
     undoMove: boolean;
     isRestartTime: boolean;
+    listMessages: Message[];
+    myMessage: string;
 }
 
 // *-------------- Modal --------------*
@@ -56,6 +74,7 @@ export interface ReducerType {
     infoReducer: InfoState;
     loginReducer: Login;
     dashboard: DashBoard;
+    io: any;
 }
 
 export interface Login {
@@ -72,6 +91,7 @@ export interface Login {
     loading: boolean;
     checkLogin: boolean;
     status: string;
+    isFacebook: boolean;
 }
 
 export interface RegisterInfo {

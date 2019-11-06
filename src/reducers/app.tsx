@@ -18,9 +18,14 @@ const initialState: AppState = {
     isRunningTime: true,
     numberIndex: -1,
     charIndex: '',
-    myTurn: true,
+    myTurn: false,
     botIndex: -1,
-    undoIndex: 0
+    undoIndex: 0,
+    gameMode: true, // true: play with bot, false: play with human;
+    indexOfBot: -1,
+    Room: { id: '', host: '', guest: '' },
+    askTie: false,
+    askUndo: false
 };
 
 function handleCheckIsValidCell(index: number, direction: number): boolean {
@@ -59,9 +64,13 @@ export default function app(state: AppState = initialState, action: ActionType):
             return { ...state, squares };
         }
         case type.USER_HANDLE_CLICK: {
-            const { index } = action.payload;
-            const { lastStep, whichPlayer, squares, steps, checkIndex, stepOrder, myTurn } = state;
-            let { undoIndex } = state;
+            let { index } = action.payload;
+            const { lastStep, squares, steps, checkIndex, stepOrder, whichPlayer } = state;
+            let { undoIndex, myTurn } = state;
+            if (index === ConstVar.BOT_INDEX) {
+                const myArray = [...squares];
+                index = myArray[Math.floor(Math.random() * myArray.length)].index;
+            }
             const value = whichPlayer ? 'X' : 'O';
 
             // assign value of square.
@@ -92,6 +101,7 @@ export default function app(state: AppState = initialState, action: ActionType):
             nSteps.sort((a: History, b: History) => {
                 return stepOrder ? a.index - b.index : b.index - a.index;
             });
+            myTurn = false;
             return {
                 ...state,
                 squares: object,
@@ -100,12 +110,12 @@ export default function app(state: AppState = initialState, action: ActionType):
                 isPlayerClick: true,
                 checkIndex: -1,
                 steps: nSteps,
-                myTurn: !myTurn,
-                undoIndex
+                undoIndex,
+                myTurn
             };
         }
-        case type.HANDLE_DISABLE_AFTER_USER_CLICK: {
-            return { ...state, myTurn: false };
+        case type.HANDLE_CHANGE_PLAYER_TURN: {
+            return { ...state, myTurn: true };
         }
         case type.USER_HANDLE_CHECK_WINNER_CHICKEN_DINNER: {
             const { lastStep, squares, whichPlayer } = state;
@@ -159,61 +169,25 @@ export default function app(state: AppState = initialState, action: ActionType):
             return { ...state };
         }
         case type.USER_HANDLE_BOT_MOVE: {
-            const { lastStep, whichPlayer, squares, steps, checkIndex, stepOrder } = state;
-            let { undoIndex } = state;
-
-            const value = whichPlayer ? 'X' : 'O';
-            const myArray = squares.filter(el => el.value === '');
+            const { squares } = state;
+            const myArray = [...squares];
             const { index } = myArray[Math.floor(Math.random() * myArray.length)];
-            // assign value of square.
-            const object = [...squares];
-            object[index].value = value;
-            let object2 = lastStep.slice(0, undoIndex);
-            let nSteps = [...steps];
-            nSteps.sort((a: History, b: History) => {
-                return a.index - b.index;
-            });
-            if (checkIndex !== -1) {
-                object2 = [...nSteps[checkIndex].squares];
-                nSteps = nSteps.slice(0, checkIndex + 1);
-            }
-            object2.push({ index, value, isRed: false });
-            nSteps.push({ index: nSteps.length, name: handleGetStepName(index, whichPlayer), squares: object2 });
-            undoIndex += 1;
-            if (object2.length >= ConstVar.MAX_COL * ConstVar.MAX_ROW) {
-                return {
-                    ...state,
-                    showModal: true,
-                    modalContext: ConstVar.TIE
-                };
-            }
-            // check winner
-            nSteps.sort((a: History, b: History) => {
-                return stepOrder ? a.index - b.index : b.index - a.index;
-            });
-            return {
-                ...state,
-                squares: object,
-                lastStep: object2,
-                whichPlayer: !whichPlayer,
-                isPlayerClick: true,
-                checkIndex: -1,
-                steps: nSteps,
-                myTurn: true,
-                undoIndex
-            };
+            return { ...state, indexOfBot: index };
         }
         case type.USER_HANDLE_PLAY_AGAINS: {
-            const { squares } = state;
+            const { squares, gameMode } = state;
             const object = [...squares];
             for (let i = 0; i < ConstVar.MAX_COL * ConstVar.MAX_ROW; i += 1) {
                 object[i].value = '';
                 object[i].isRed = false;
             }
-            return { ...initialState };
+            if (gameMode) {
+                return { ...initialState, myTurn: true };
+            }
+            return initialState;
         }
         case type.USER_HANDLE_CLOSE_MODAL: {
-            return { ...state, showModal: false, disable: true };
+            return { ...state, showModal: false, disable: false };
         }
         case type.USER_HANDLE_STEP_CLICK: {
             const { steps, squares } = state;
@@ -295,6 +269,22 @@ export default function app(state: AppState = initialState, action: ActionType):
                 };
             }
             return { ...state };
+        }
+        case type.HANDLE_CHANGLE_GAME_MODE: {
+            const { gameMode } = action.payload;
+            return { ...state, gameMode };
+        }
+        case type.HANDLE_JOIN_ROOM: {
+            const { room } = action.payload;
+            return { ...state, Room: room };
+        }
+        case type.HANDLE_ASK_FOR_TIE: {
+            const { askTie, disable } = state;
+            return { ...state, askTie: !askTie, disable: !disable };
+        }
+        case type.HANDLE_ASK_FOR_UNDO: {
+            const { askUndo, disable } = state;
+            return { ...state, askUndo: !askUndo, disable: !disable };
         }
         default:
             return { ...state };

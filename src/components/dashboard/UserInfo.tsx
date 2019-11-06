@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
+import defaultAvatar from '../../assets/default.png';
 
 interface MyProps {
     username: string;
@@ -146,7 +147,7 @@ class UserInfor extends React.Component<MyProps, MyState> {
                 <div className="mt-2 row">
                     <div className="row flex-column">
                         <div className="row">
-                            <img src={tempAvatar} id="avatar" alt="" />
+                            <img src={tempAvatar === '' ? defaultAvatar : tempAvatar} id="avatar" alt="" />
                             <span className="ml-3 userText1"> {username}</span>
                         </div>
                         <input

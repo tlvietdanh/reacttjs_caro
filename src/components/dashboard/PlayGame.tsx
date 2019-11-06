@@ -6,19 +6,13 @@ import bot from '../../assets/bot.jpg';
 interface MyProps {
     handleFindingMatch: Function;
     isFinding: boolean;
-}
-
-interface MyState {
     gameMode: boolean;
+    handleChangeGameMode: Function;
 }
 
-class PlayGame extends React.Component<MyProps, MyState> {
+class PlayGame extends React.Component<MyProps> {
     constructor(props: MyProps) {
         super(props);
-
-        this.state = {
-            gameMode: true
-        };
 
         this.handleFindingMatch = this.handleFindingMatch.bind(this);
         this.handleChangeGameMode = this.handleChangeGameMode.bind(this);
@@ -26,19 +20,17 @@ class PlayGame extends React.Component<MyProps, MyState> {
 
     handleFindingMatch() {
         const { handleFindingMatch } = this.props;
-        const { gameMode } = this.state;
-        handleFindingMatch(gameMode);
+        handleFindingMatch();
     }
 
     handleChangeGameMode(e: any) {
-        this.setState({
-            gameMode: e.currentTarget.name === 'bot'
-        });
+        const { handleChangeGameMode, isFinding } = this.props;
+        if (isFinding) return;
+        handleChangeGameMode(e.currentTarget.name === 'bot');
     }
 
     render() {
-        const { isFinding } = this.props;
-        const { gameMode } = this.state;
+        const { isFinding, gameMode } = this.props;
         return (
             <div className="col-8 container main d-flex">
                 <div className="row">Wellcome to TicTacToe</div>

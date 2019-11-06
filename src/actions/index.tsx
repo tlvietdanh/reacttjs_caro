@@ -1,4 +1,6 @@
 import * as type from '../constants/actionType';
+import * as ConstVar from '../constants/constVariables';
+import { Room, Message } from '../constants/globalInterface';
 
 export const handleInitialBoard = () => ({
     type: type.USER_INITIAL_BOARD,
@@ -6,20 +8,28 @@ export const handleInitialBoard = () => ({
 });
 const action = (type: string, payload: any) => ({ type, payload });
 
-export const handleClick = (index: number) => {
+export const handleHostClick = (index: number) => {
     return (dispatch: any) => {
         dispatch(action(type.USER_HANDLE_CLICK, { index }));
         dispatch(action(type.USER_HANDLE_CHECK_WINNER_CHICKEN_DINNER, {}));
-        dispatch(action(type.HANDLE_DISABLE_AFTER_USER_CLICK, {}));
-        dispatch(action(type.USER_HANDLE_BOT_MOVE, {}));
-
+    };
+};
+export const handleGuestClick = (index: number) => {
+    return (dispatch: any) => {
+        dispatch(action(type.USER_HANDLE_CLICK, { index }));
+        dispatch(action(type.USER_HANDLE_CHECK_WINNER_CHICKEN_DINNER, {}));
+        dispatch(action(type.HANDLE_CHANGE_PLAYER_TURN, {}));
     };
 };
 
-export const handleBotMove = () => ({
-    type: type.USER_HANDLE_BOT_MOVE,
-    payload: {}
-});
+export const handleBotMove = () => {
+    return (dispatch: any) => {
+        const index = ConstVar.BOT_INDEX;
+        dispatch(action(type.USER_HANDLE_CLICK, { index }));
+        dispatch(action(type.USER_HANDLE_CHECK_WINNER_CHICKEN_DINNER, {}));
+        dispatch(action(type.HANDLE_CHANGE_PLAYER_TURN, {}));
+    };
+};
 
 export const handleCheckWinnerChickenDinner = () => ({
     type: type.USER_HANDLE_CHECK_WINNER_CHICKEN_DINNER,
@@ -96,5 +106,52 @@ export const handleUndoMove = () => ({
 
 export const handleRedoMove = () => ({
     type: type.HANDLE_REDO_MOVE,
+    payload: {}
+});
+
+export const handleChangeGameMode = (gameMode: boolean) => ({
+    type: type.HANDLE_CHANGLE_GAME_MODE,
+    payload: { gameMode }
+});
+
+export const handleJoinRoom = (room: Room) => ({
+    type: type.HANDLE_JOIN_ROOM,
+    payload: { room }
+});
+
+export const handleChangeMessage = (value: string) => ({
+    type: type.HANDLE_CHANGE_MESSAGE,
+    payload: { value }
+});
+
+export const handleSendMessage = (value: Message) => ({
+    type: type.HANDLE_SEND_MESSAGE,
+    payload: { value }
+});
+
+export const handleChangePlayerTurn = () => ({
+    type: type.HANDLE_CHANGE_PLAYER_TURN,
+    payload: {}
+});
+
+export const handleStartGame = () => ({
+    type: type.HANDLE_START_GAME,
+    payload: {}
+});
+export const handleQuitGame = () => {
+    return (dispatch: any) => {
+        dispatch(action(type.USER_HANDLE_PLAY_AGAINS, {}));
+        dispatch(action(type.HANDLE_QUIT_GAME, {}));
+        dispatch(action(type.HANDLE_RESTART_INFO, {}));
+    };
+};
+
+export const handleAskForTie = () => ({
+    type: type.HANDLE_ASK_FOR_TIE,
+    payload: {}
+});
+
+export const handleAskForUndo = () => ({
+    type: type.HANDLE_ASK_FOR_UNDO,
     payload: {}
 });

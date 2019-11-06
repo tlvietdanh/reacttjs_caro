@@ -1,5 +1,6 @@
 export const MAX_COL = 20;
 export const MAX_ROW = 20;
+export const BOT_INDEX = -1310;
 
 export const TIE = 'The game is ended in a draw';
 

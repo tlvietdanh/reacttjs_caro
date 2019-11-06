@@ -14,8 +14,9 @@ const initialState: Login = {
     isLoginFalse: false,
     isRegisterSuccess: false,
     loading: false,
-    checkLogin: false,
-    status: ''
+    checkLogin: true,
+    status: '',
+    isFacebook: false
 };
 
 export default function loginReducer(state = initialState, action: ActionType) {
@@ -28,12 +29,11 @@ export default function loginReducer(state = initialState, action: ActionType) {
         }
         case type.HANDLE_CHECK_LOGIN: {
             const user = action.payload;
-            let { checkLogin } = state;
+            const { checkLogin } = state;
             if (user) {
                 const { data } = user;
 
-                if (!checkLogin && data) {
-                    checkLogin = true;
+                if (checkLogin && data) {
                     return {
                         ...state,
                         id: data.id,
@@ -41,14 +41,12 @@ export default function loginReducer(state = initialState, action: ActionType) {
                         fullname: data.fullname,
                         email: data.email,
                         avatar: data.avatar,
-                        checkLogin: true,
                         status: '',
                         loading: false,
                         isLogin: true
                     };
                 }
-                checkLogin = false;
-                return { ...state, checkLogin, loading: false };
+                return { ...state, checkLogin: false, loading: false };
             }
             return { ...state, checkLogin: false, loading: false, state: constants.CONNECT_FAIL };
         }
@@ -83,13 +81,13 @@ export default function loginReducer(state = initialState, action: ActionType) {
                         status: ''
                     };
                 }
-                return { ...state, isLogin: false, status: constants.INVALID_USERNAME, loading: false };
+                return { ...state, isLogin: false, status: constants.INVALID_USERNAME, loading: false, checkLogin: false };
             }
-            return { ...state, isLogin: false, status: constants.CONNECT_FAIL };
+            return { ...state, isLogin: false, status: constants.CONNECT_FAIL, checkLogin: false };
         }
         case type.HANDLE_LOGOUT: {
             localStorage.setItem('auth', '');
-            return initialState;
+            return { ...initialState, checkLogin: false };
         }
         case type.HANDLE_CHANGE_REGISTER_INFO: {
             const { info } = action.payload;
@@ -100,17 +98,15 @@ export default function loginReducer(state = initialState, action: ActionType) {
             const respond = action.payload;
             if (respond) {
                 if (typeof respond === 'string') {
-                    return { ...state, isRegisterSuccess: true, loading: false, status: constants.SAME_USERNAME };
+                    return { ...state, isRegisterSuccess: false, loading: false, status: constants.SAME_USERNAME };
                 }
                 const { user, token } = respond;
-                let { isLogin } = state;
                 localStorage.setItem(
                     'auth',
                     JSON.stringify({
                         token
                     })
                 );
-                isLogin = true;
                 return {
                     ...state,
                     id: user.id,
@@ -120,9 +116,10 @@ export default function loginReducer(state = initialState, action: ActionType) {
                     avatar: user.avatar,
                     loading: false,
                     isRegisterSuccess: true,
-                    isLogin,
+                    isLogin: true,
                     token,
-                    status: ''
+                    status: '',
+                    checkLogin: true
                 };
             }
             return { ...state, status: constants.CONNECT_FAIL };
@@ -146,6 +143,9 @@ export default function loginReducer(state = initialState, action: ActionType) {
                 };
             }
             return { ...state, status: constants.CONNECT_FAIL };
+        }
+        case type.HANDLE_CHANGE_IS_FACEBOOK: {
+            return { ...state, isFacebook: true };
         }
         default:
             return state;

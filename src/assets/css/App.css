@@ -129,7 +129,7 @@
 }
 
 .mList {
-  min-width: 300px;
+  min-width: 200px;
   max-height: 200px;
   overflow-y: scroll;
 }
@@ -204,4 +204,19 @@
 
 .login-text{
   color: red;
+}
+
+.nexline {
+  word-wrap: break-word;
+  text-align: left;
+}
+
+.mtext-left {
+  text-align: left;
+  color: red;
+}
+
+.mtext-right {
+  text-align: right;
+  color: blue;
 }

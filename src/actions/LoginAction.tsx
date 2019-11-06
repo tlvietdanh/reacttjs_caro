@@ -76,8 +76,6 @@ export const handleModifyUserInfo = (email: string, fullname: string, avatar: st
     if (auth) {
         return async (dispatch: any) => {
             if (avatar !== '') {
-                console.log('hiha')
-
                 if (oldPass !== '' && newPass !== '') {
                     data = { email, fullname, avatar, oldPass, newPass };
                 } else {
@@ -105,7 +103,6 @@ export const handleModifyUserInfo = (email: string, fullname: string, avatar: st
             }
             return await Axios.post(`${baseURL}/me/edit`, data, { headers: { Authorization: `Bearer ${JSON.parse(auth).token}` } }).then(
                 (data: any) => {
-                    console.log(data) 
                     dispatch(action(type.HANDLE_UPDATE_USER_INFO, data));
                 }
             );
@@ -115,3 +112,8 @@ export const handleModifyUserInfo = (email: string, fullname: string, avatar: st
         dispatch(action(type.HANDLE_CHECK_LOGIN, null));
     };
 };
+
+export const handleIsFacebookClick = () => ({
+    type: type.HANDLE_CHANGE_IS_FACEBOOK,
+    payload: {}
+});

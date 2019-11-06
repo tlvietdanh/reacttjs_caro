@@ -3,7 +3,14 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
-import { handleLoginRequest, handleChangeInfo, handleLogout, handleRegisterRequest, handleCheckLoginRequest } from '../../actions/LoginAction';
+import {
+    handleLoginRequest,
+    handleChangeInfo,
+    handleLogout,
+    handleRegisterRequest,
+    handleCheckLoginRequest,
+    handleIsFacebookClick
+} from '../../actions/LoginAction';
 import { ReducerType } from '../../constants/globalInterface';
 import Register from '../../components/user/SignUp';
 import '../../assets/css/login.css';
@@ -20,12 +27,14 @@ interface MyProps {
     checkLogin: boolean;
     isRegisterSuccess: boolean;
     status: string;
+    isFacebook: boolean;
     handleLoginRequest: Function;
     handleChangeInfo: Function;
     handleLogout: Function;
     handleRegisterRequest: Function;
     history: any;
     handleCheckLoginRequest: Function;
+    handleIsFacebookClick: Function;
 }
 
 interface MyState {
@@ -42,6 +51,12 @@ class Login extends React.Component<MyProps, MyState> {
         this.handleGoToRegister = this.handleGoToRegister.bind(this);
         this.handleChangeInfo = this.handleChangeInfo.bind(this);
         this.handleRegister = this.handleRegister.bind(this);
+        this.handleIsFacebookClick = this.handleIsFacebookClick.bind(this);
+    }
+
+    componentWillMount() {
+        const { handleCheckLoginRequest, checkLogin } = this.props;
+        if (!checkLogin) handleCheckLoginRequest();
     }
 
     handleChangeInfo(type: string, value: string) {
@@ -85,11 +100,16 @@ class Login extends React.Component<MyProps, MyState> {
         );
     }
 
+    handleIsFacebookClick() {
+        const { handleIsFacebookClick } = this.props;
+        handleIsFacebookClick();
+    }
+
     render() {
-        const { username, password, fullname, loading, history, isLogin, email, isRegisterSuccess, status } = this.props;
+        const { username, password, fullname, loading, history, isLogin, email, isRegisterSuccess, status, checkLogin, isFacebook } = this.props;
         const { goToRegister } = this.state;
-        if (isLogin) {
-            if (history) history.push('/');
+        if (isLogin || checkLogin) {
+            if (history) history.replace('/');
         }
         return (
             <div className="Login">
@@ -106,6 +126,7 @@ class Login extends React.Component<MyProps, MyState> {
                         handleRegister={this.handleRegister}
                         handleLogin={this.handleLogin}
                         status={status}
+                        isFacebook={isFacebook}
                     />
                     <SignIn
                         username={username}
@@ -114,6 +135,8 @@ class Login extends React.Component<MyProps, MyState> {
                         handleChangeInfo={this.handleChangeInfo}
                         handleLogin={this.handleLogin}
                         status={status}
+                        isFacebook={isFacebook}
+                        handleIsFacebookClick={this.handleIsFacebookClick}
                     />
 
                     <div className="overlay-container">
@@ -151,7 +174,8 @@ const mapStateToProps = (state: ReducerType) => {
         checkLogin: state.loginReducer.checkLogin,
         email: state.loginReducer.email,
         isRegisterSuccess: state.loginReducer.isRegisterSuccess,
-        status: state.loginReducer.status
+        status: state.loginReducer.status,
+        isFacebook: state.loginReducer.isFacebook
     };
 };
 
@@ -160,7 +184,8 @@ const mapDispatchToProbs = {
     handleChangeInfo,
     handleLogout,
     handleRegisterRequest,
-    handleCheckLoginRequest
+    handleCheckLoginRequest,
+    handleIsFacebookClick
 };
 
 export default withRouter(
